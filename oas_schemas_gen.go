@@ -100,38 +100,614 @@ const (
 	ErrorCodeDeadlineExceededError        ErrorCode = "DeadlineExceededError"
 )
 
-// NewOptScanURLReq returns new OptScanURLReq with value set to v.
-func NewOptScanURLReq(v ScanURLReq) OptScanURLReq {
-	return OptScanURLReq{
+type FileInfoBadRequest struct {
+	Error Error `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s FileInfoBadRequest) GetError() Error {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *FileInfoBadRequest) SetError(val Error) {
+	s.Error = val
+}
+
+func (*FileInfoBadRequest) fileInfoRes() {}
+
+type FileInfoOK struct {
+	Data FileInfoOKData `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s FileInfoOK) GetData() FileInfoOKData {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *FileInfoOK) SetData(val FileInfoOKData) {
+	s.Data = val
+}
+
+func (*FileInfoOK) fileInfoRes() {}
+
+type FileInfoOKData struct {
+	Attributes FileObject `json:"attributes"`
+	// Object ID.
+	ID            string                         `json:"id"`
+	Links         FileInfoOKDataLinks            `json:"links"`
+	Relationships OptFileInfoOKDataRelationships `json:"relationships"`
+	// Object type.
+	Type FileInfoOKDataType `json:"type"`
+}
+
+// GetAttributes returns the value of Attributes.
+func (s FileInfoOKData) GetAttributes() FileObject {
+	return s.Attributes
+}
+
+// GetID returns the value of ID.
+func (s FileInfoOKData) GetID() string {
+	return s.ID
+}
+
+// GetLinks returns the value of Links.
+func (s FileInfoOKData) GetLinks() FileInfoOKDataLinks {
+	return s.Links
+}
+
+// GetRelationships returns the value of Relationships.
+func (s FileInfoOKData) GetRelationships() OptFileInfoOKDataRelationships {
+	return s.Relationships
+}
+
+// GetType returns the value of Type.
+func (s FileInfoOKData) GetType() FileInfoOKDataType {
+	return s.Type
+}
+
+// SetAttributes sets the value of Attributes.
+func (s *FileInfoOKData) SetAttributes(val FileObject) {
+	s.Attributes = val
+}
+
+// SetID sets the value of ID.
+func (s *FileInfoOKData) SetID(val string) {
+	s.ID = val
+}
+
+// SetLinks sets the value of Links.
+func (s *FileInfoOKData) SetLinks(val FileInfoOKDataLinks) {
+	s.Links = val
+}
+
+// SetRelationships sets the value of Relationships.
+func (s *FileInfoOKData) SetRelationships(val OptFileInfoOKDataRelationships) {
+	s.Relationships = val
+}
+
+// SetType sets the value of Type.
+func (s *FileInfoOKData) SetType(val FileInfoOKDataType) {
+	s.Type = val
+}
+
+type FileInfoOKDataLinks struct {
+	// Link to the object.
+	Self            string `json:"self"`
+	AdditionalProps FileInfoOKDataLinksAdditional
+}
+
+// GetSelf returns the value of Self.
+func (s FileInfoOKDataLinks) GetSelf() string {
+	return s.Self
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s FileInfoOKDataLinks) GetAdditionalProps() FileInfoOKDataLinksAdditional {
+	return s.AdditionalProps
+}
+
+// SetSelf sets the value of Self.
+func (s *FileInfoOKDataLinks) SetSelf(val string) {
+	s.Self = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *FileInfoOKDataLinks) SetAdditionalProps(val FileInfoOKDataLinksAdditional) {
+	s.AdditionalProps = val
+}
+
+type FileInfoOKDataLinksAdditional map[string]jx.Raw
+
+func (s *FileInfoOKDataLinksAdditional) init() FileInfoOKDataLinksAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type FileInfoOKDataRelationships map[string]jx.Raw
+
+func (s *FileInfoOKDataRelationships) init() FileInfoOKDataRelationships {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Object type.
+type FileInfoOKDataType string
+
+const (
+	FileInfoOKDataTypeFile FileInfoOKDataType = "file"
+)
+
+// Files are one of the most important type of objects in the VirusTotal API. We have a huge dataset
+// of more than 2 billion files that have been analysed by VirusTotal over the years. A file object
+// can be obtained either by [uploading a new file](ref:files-scan) to VirusTotal, by [searching for
+// an already existing file hash](ref:file-info) or by other meanings when searching in [VT
+// Enterprise services](ref:search).
+// A file object ID is its SHA256 hash.
+// Ref: #/components/schemas/FileObject
+type FileObject struct {
+	// List of representative tags related to the file's capabilities. Only available for Premium API
+	// users.
+	CapabilitiesTags []string `json:"capabilities_tags"`
+	// Extracted when possible from the file's metadata. Indicates when it was built or compiled. It can
+	// also be faked by malware creators. UTC timestamp.
+	CreationDate int `json:"creation_date"`
+	// True if the file can be downloaded, false otherwise. Only available for Premium API users.
+	Downloadable bool `json:"downloadable"`
+	// Date when the file was first seen in VirusTotal. UTC timestamp.
+	FirstSubmissionDate int `json:"first_submission_date"`
+	// Most recent scan date. UTC timestamp.
+	LastAnalysisDate int `json:"last_analysis_date"`
+	// Latest scan results. For more information about its format, check the [Analysis](#analyses-object)
+	// object `results` attribute.
+	LastAnalysisResults FileObjectLastAnalysisResults `json:"last_analysis_results"`
+	// A summary of the latest scan results. For more information about its format, check the
+	// [Analysis](#analyses-object) object `stats` attribute.
+	LastAnalysisStats FileObjectLastAnalysisStats `json:"last_analysis_stats"`
+	// Date when the object itself was last modified. UTC timestamp.
+	LastModificationDate int `json:"last_modification_date"`
+	// Most recent date the file was posted to VirusTotal. UTC timestamp.
+	LastSubmissionDate int `json:"last_submission_date"`
+	// Icon's relevant hashes, the dictionary contains two keys:.
+	MainIcon FileObjectMainIcon `json:"main_icon"`
+	// File's MD5 hash.
+	MD5 string `json:"md5"`
+	// The most interesting name out of all file's names.
+	MeaningfulName string `json:"meaningful_name"`
+	// All file names associated with the file.
+	Names []string `json:"names"`
+	// File's score calculated from all votes posted by the VirusTotal community. To know more about how
+	// reputation is calculated, check [this article](https://support.virustotal.
+	// com/hc/en-us/articles/115002146769-Vote-comment).
+	Reputation int `json:"reputation"`
+	// File's SHA1 hash.
+	SHA1 string `json:"sha1"`
+	// File's SHA256 hash.
+	SHA256 string `json:"sha256"`
+	// Dictionary containing the number of matched sigma rules group by its severity, same as
+	// `sigma_analysis_stats` but split by ruleset. Dictionary key is the ruleset name and value is the
+	// stats for that specific ruleset.
+	SigmaAnalysisSummary FileObjectSigmaAnalysisSummary `json:"sigma_analysis_summary"`
+	// File size in bytes.
+	Size int `json:"size"`
+	// List of representative attributes.
+	Tags []string `json:"tags"`
+	// Number of times the file has been posted to VirusTotal.
+	TimesSubmitted int `json:"times_submitted"`
+	// Unweighted number of total votes from the community, divided in "harmless" and "malicious":.
+	TotalVotes FileObjectTotalVotes `json:"total_votes"`
+	// Describes the file type.
+	TypeDescription string `json:"type_description"`
+	// Specifies file extension.
+	TypeExtension string `json:"type_extension"`
+	// Tag representing the file type. Can be used to filter by file type in [VirusTotal intelligence
+	// searches](https://support.virustotal.com/hc/en-us/articles/360001387057).
+	TypeTag string `json:"type_tag"`
+	// Indicates from how many different sources the file has been posted from.
+	UniqueSources int `json:"unique_sources"`
+	// In-house similarity clustering algorithm value, based on a simple structural feature hash allows
+	// you to find similar files.
+	Vhash string `json:"vhash"`
+}
+
+// GetCapabilitiesTags returns the value of CapabilitiesTags.
+func (s FileObject) GetCapabilitiesTags() []string {
+	return s.CapabilitiesTags
+}
+
+// GetCreationDate returns the value of CreationDate.
+func (s FileObject) GetCreationDate() int {
+	return s.CreationDate
+}
+
+// GetDownloadable returns the value of Downloadable.
+func (s FileObject) GetDownloadable() bool {
+	return s.Downloadable
+}
+
+// GetFirstSubmissionDate returns the value of FirstSubmissionDate.
+func (s FileObject) GetFirstSubmissionDate() int {
+	return s.FirstSubmissionDate
+}
+
+// GetLastAnalysisDate returns the value of LastAnalysisDate.
+func (s FileObject) GetLastAnalysisDate() int {
+	return s.LastAnalysisDate
+}
+
+// GetLastAnalysisResults returns the value of LastAnalysisResults.
+func (s FileObject) GetLastAnalysisResults() FileObjectLastAnalysisResults {
+	return s.LastAnalysisResults
+}
+
+// GetLastAnalysisStats returns the value of LastAnalysisStats.
+func (s FileObject) GetLastAnalysisStats() FileObjectLastAnalysisStats {
+	return s.LastAnalysisStats
+}
+
+// GetLastModificationDate returns the value of LastModificationDate.
+func (s FileObject) GetLastModificationDate() int {
+	return s.LastModificationDate
+}
+
+// GetLastSubmissionDate returns the value of LastSubmissionDate.
+func (s FileObject) GetLastSubmissionDate() int {
+	return s.LastSubmissionDate
+}
+
+// GetMainIcon returns the value of MainIcon.
+func (s FileObject) GetMainIcon() FileObjectMainIcon {
+	return s.MainIcon
+}
+
+// GetMD5 returns the value of MD5.
+func (s FileObject) GetMD5() string {
+	return s.MD5
+}
+
+// GetMeaningfulName returns the value of MeaningfulName.
+func (s FileObject) GetMeaningfulName() string {
+	return s.MeaningfulName
+}
+
+// GetNames returns the value of Names.
+func (s FileObject) GetNames() []string {
+	return s.Names
+}
+
+// GetReputation returns the value of Reputation.
+func (s FileObject) GetReputation() int {
+	return s.Reputation
+}
+
+// GetSHA1 returns the value of SHA1.
+func (s FileObject) GetSHA1() string {
+	return s.SHA1
+}
+
+// GetSHA256 returns the value of SHA256.
+func (s FileObject) GetSHA256() string {
+	return s.SHA256
+}
+
+// GetSigmaAnalysisSummary returns the value of SigmaAnalysisSummary.
+func (s FileObject) GetSigmaAnalysisSummary() FileObjectSigmaAnalysisSummary {
+	return s.SigmaAnalysisSummary
+}
+
+// GetSize returns the value of Size.
+func (s FileObject) GetSize() int {
+	return s.Size
+}
+
+// GetTags returns the value of Tags.
+func (s FileObject) GetTags() []string {
+	return s.Tags
+}
+
+// GetTimesSubmitted returns the value of TimesSubmitted.
+func (s FileObject) GetTimesSubmitted() int {
+	return s.TimesSubmitted
+}
+
+// GetTotalVotes returns the value of TotalVotes.
+func (s FileObject) GetTotalVotes() FileObjectTotalVotes {
+	return s.TotalVotes
+}
+
+// GetTypeDescription returns the value of TypeDescription.
+func (s FileObject) GetTypeDescription() string {
+	return s.TypeDescription
+}
+
+// GetTypeExtension returns the value of TypeExtension.
+func (s FileObject) GetTypeExtension() string {
+	return s.TypeExtension
+}
+
+// GetTypeTag returns the value of TypeTag.
+func (s FileObject) GetTypeTag() string {
+	return s.TypeTag
+}
+
+// GetUniqueSources returns the value of UniqueSources.
+func (s FileObject) GetUniqueSources() int {
+	return s.UniqueSources
+}
+
+// GetVhash returns the value of Vhash.
+func (s FileObject) GetVhash() string {
+	return s.Vhash
+}
+
+// SetCapabilitiesTags sets the value of CapabilitiesTags.
+func (s *FileObject) SetCapabilitiesTags(val []string) {
+	s.CapabilitiesTags = val
+}
+
+// SetCreationDate sets the value of CreationDate.
+func (s *FileObject) SetCreationDate(val int) {
+	s.CreationDate = val
+}
+
+// SetDownloadable sets the value of Downloadable.
+func (s *FileObject) SetDownloadable(val bool) {
+	s.Downloadable = val
+}
+
+// SetFirstSubmissionDate sets the value of FirstSubmissionDate.
+func (s *FileObject) SetFirstSubmissionDate(val int) {
+	s.FirstSubmissionDate = val
+}
+
+// SetLastAnalysisDate sets the value of LastAnalysisDate.
+func (s *FileObject) SetLastAnalysisDate(val int) {
+	s.LastAnalysisDate = val
+}
+
+// SetLastAnalysisResults sets the value of LastAnalysisResults.
+func (s *FileObject) SetLastAnalysisResults(val FileObjectLastAnalysisResults) {
+	s.LastAnalysisResults = val
+}
+
+// SetLastAnalysisStats sets the value of LastAnalysisStats.
+func (s *FileObject) SetLastAnalysisStats(val FileObjectLastAnalysisStats) {
+	s.LastAnalysisStats = val
+}
+
+// SetLastModificationDate sets the value of LastModificationDate.
+func (s *FileObject) SetLastModificationDate(val int) {
+	s.LastModificationDate = val
+}
+
+// SetLastSubmissionDate sets the value of LastSubmissionDate.
+func (s *FileObject) SetLastSubmissionDate(val int) {
+	s.LastSubmissionDate = val
+}
+
+// SetMainIcon sets the value of MainIcon.
+func (s *FileObject) SetMainIcon(val FileObjectMainIcon) {
+	s.MainIcon = val
+}
+
+// SetMD5 sets the value of MD5.
+func (s *FileObject) SetMD5(val string) {
+	s.MD5 = val
+}
+
+// SetMeaningfulName sets the value of MeaningfulName.
+func (s *FileObject) SetMeaningfulName(val string) {
+	s.MeaningfulName = val
+}
+
+// SetNames sets the value of Names.
+func (s *FileObject) SetNames(val []string) {
+	s.Names = val
+}
+
+// SetReputation sets the value of Reputation.
+func (s *FileObject) SetReputation(val int) {
+	s.Reputation = val
+}
+
+// SetSHA1 sets the value of SHA1.
+func (s *FileObject) SetSHA1(val string) {
+	s.SHA1 = val
+}
+
+// SetSHA256 sets the value of SHA256.
+func (s *FileObject) SetSHA256(val string) {
+	s.SHA256 = val
+}
+
+// SetSigmaAnalysisSummary sets the value of SigmaAnalysisSummary.
+func (s *FileObject) SetSigmaAnalysisSummary(val FileObjectSigmaAnalysisSummary) {
+	s.SigmaAnalysisSummary = val
+}
+
+// SetSize sets the value of Size.
+func (s *FileObject) SetSize(val int) {
+	s.Size = val
+}
+
+// SetTags sets the value of Tags.
+func (s *FileObject) SetTags(val []string) {
+	s.Tags = val
+}
+
+// SetTimesSubmitted sets the value of TimesSubmitted.
+func (s *FileObject) SetTimesSubmitted(val int) {
+	s.TimesSubmitted = val
+}
+
+// SetTotalVotes sets the value of TotalVotes.
+func (s *FileObject) SetTotalVotes(val FileObjectTotalVotes) {
+	s.TotalVotes = val
+}
+
+// SetTypeDescription sets the value of TypeDescription.
+func (s *FileObject) SetTypeDescription(val string) {
+	s.TypeDescription = val
+}
+
+// SetTypeExtension sets the value of TypeExtension.
+func (s *FileObject) SetTypeExtension(val string) {
+	s.TypeExtension = val
+}
+
+// SetTypeTag sets the value of TypeTag.
+func (s *FileObject) SetTypeTag(val string) {
+	s.TypeTag = val
+}
+
+// SetUniqueSources sets the value of UniqueSources.
+func (s *FileObject) SetUniqueSources(val int) {
+	s.UniqueSources = val
+}
+
+// SetVhash sets the value of Vhash.
+func (s *FileObject) SetVhash(val string) {
+	s.Vhash = val
+}
+
+// Latest scan results. For more information about its format, check the [Analysis](#analyses-object)
+// object `results` attribute.
+type FileObjectLastAnalysisResults map[string]jx.Raw
+
+func (s *FileObjectLastAnalysisResults) init() FileObjectLastAnalysisResults {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// A summary of the latest scan results. For more information about its format, check the
+// [Analysis](#analyses-object) object `stats` attribute.
+type FileObjectLastAnalysisStats map[string]jx.Raw
+
+func (s *FileObjectLastAnalysisStats) init() FileObjectLastAnalysisStats {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Icon's relevant hashes, the dictionary contains two keys:.
+type FileObjectMainIcon struct {
+	// Icon's difference hash. It can be used to search for files with similar icons using the
+	// [/intelligence/search](#intelligence-search) endpoint.
+	Dhash string `json:"dhash"`
+	// Icon's MD5 hash.
+	RawMD5 string `json:"raw_md5"`
+}
+
+// GetDhash returns the value of Dhash.
+func (s FileObjectMainIcon) GetDhash() string {
+	return s.Dhash
+}
+
+// GetRawMD5 returns the value of RawMD5.
+func (s FileObjectMainIcon) GetRawMD5() string {
+	return s.RawMD5
+}
+
+// SetDhash sets the value of Dhash.
+func (s *FileObjectMainIcon) SetDhash(val string) {
+	s.Dhash = val
+}
+
+// SetRawMD5 sets the value of RawMD5.
+func (s *FileObjectMainIcon) SetRawMD5(val string) {
+	s.RawMD5 = val
+}
+
+// Dictionary containing the number of matched sigma rules group by its severity, same as
+// `sigma_analysis_stats` but split by ruleset. Dictionary key is the ruleset name and value is the
+// stats for that specific ruleset.
+type FileObjectSigmaAnalysisSummary map[string]jx.Raw
+
+func (s *FileObjectSigmaAnalysisSummary) init() FileObjectSigmaAnalysisSummary {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Unweighted number of total votes from the community, divided in "harmless" and "malicious":.
+type FileObjectTotalVotes struct {
+	// Number of positive votes.
+	Harmless int `json:"harmless"`
+	// Number of negative votes.
+	Malicious int `json:"malicious"`
+}
+
+// GetHarmless returns the value of Harmless.
+func (s FileObjectTotalVotes) GetHarmless() int {
+	return s.Harmless
+}
+
+// GetMalicious returns the value of Malicious.
+func (s FileObjectTotalVotes) GetMalicious() int {
+	return s.Malicious
+}
+
+// SetHarmless sets the value of Harmless.
+func (s *FileObjectTotalVotes) SetHarmless(val int) {
+	s.Harmless = val
+}
+
+// SetMalicious sets the value of Malicious.
+func (s *FileObjectTotalVotes) SetMalicious(val int) {
+	s.Malicious = val
+}
+
+// NewOptFileInfoOKDataRelationships returns new OptFileInfoOKDataRelationships with value set to v.
+func NewOptFileInfoOKDataRelationships(v FileInfoOKDataRelationships) OptFileInfoOKDataRelationships {
+	return OptFileInfoOKDataRelationships{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptScanURLReq is optional ScanURLReq.
-type OptScanURLReq struct {
-	Value ScanURLReq
+// OptFileInfoOKDataRelationships is optional FileInfoOKDataRelationships.
+type OptFileInfoOKDataRelationships struct {
+	Value FileInfoOKDataRelationships
 	Set   bool
 }
 
-// IsSet returns true if OptScanURLReq was set.
-func (o OptScanURLReq) IsSet() bool { return o.Set }
+// IsSet returns true if OptFileInfoOKDataRelationships was set.
+func (o OptFileInfoOKDataRelationships) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptScanURLReq) Reset() {
-	var v ScanURLReq
+func (o *OptFileInfoOKDataRelationships) Reset() {
+	var v FileInfoOKDataRelationships
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptScanURLReq) SetTo(v ScanURLReq) {
+func (o *OptFileInfoOKDataRelationships) SetTo(v FileInfoOKDataRelationships) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptScanURLReq) Get() (v ScanURLReq, ok bool) {
+func (o OptFileInfoOKDataRelationships) Get() (v FileInfoOKDataRelationships, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -139,72 +715,57 @@ func (o OptScanURLReq) Get() (v ScanURLReq, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptScanURLReq) Or(d ScanURLReq) ScanURLReq {
+func (o OptFileInfoOKDataRelationships) Or(d FileInfoOKDataRelationships) FileInfoOKDataRelationships {
 	if v, ok := o.Get(); ok {
 		return v
 	}
 	return d
 }
 
-type ScanURLBadRequest struct {
-	Error Error `json:"error"`
+// NewOptURLInfoOKDataRelationships returns new OptURLInfoOKDataRelationships with value set to v.
+func NewOptURLInfoOKDataRelationships(v URLInfoOKDataRelationships) OptURLInfoOKDataRelationships {
+	return OptURLInfoOKDataRelationships{
+		Value: v,
+		Set:   true,
+	}
 }
 
-// GetError returns the value of Error.
-func (s ScanURLBadRequest) GetError() Error {
-	return s.Error
+// OptURLInfoOKDataRelationships is optional URLInfoOKDataRelationships.
+type OptURLInfoOKDataRelationships struct {
+	Value URLInfoOKDataRelationships
+	Set   bool
 }
 
-// SetError sets the value of Error.
-func (s *ScanURLBadRequest) SetError(val Error) {
-	s.Error = val
+// IsSet returns true if OptURLInfoOKDataRelationships was set.
+func (o OptURLInfoOKDataRelationships) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptURLInfoOKDataRelationships) Reset() {
+	var v URLInfoOKDataRelationships
+	o.Value = v
+	o.Set = false
 }
 
-func (*ScanURLBadRequest) scanURLRes() {}
-
-type ScanURLOK struct {
-	Data URLObject `json:"data"`
+// SetTo sets value to v.
+func (o *OptURLInfoOKDataRelationships) SetTo(v URLInfoOKDataRelationships) {
+	o.Set = true
+	o.Value = v
 }
 
-// GetData returns the value of Data.
-func (s ScanURLOK) GetData() URLObject {
-	return s.Data
+// Get returns value and boolean that denotes whether value was set.
+func (o OptURLInfoOKDataRelationships) Get() (v URLInfoOKDataRelationships, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
 }
 
-// SetData sets the value of Data.
-func (s *ScanURLOK) SetData(val URLObject) {
-	s.Data = val
-}
-
-func (*ScanURLOK) scanURLRes() {}
-
-type ScanURLReq struct {
-	// URL to scan.
-	URL string `json:"url"`
-}
-
-// GetURL returns the value of URL.
-func (s ScanURLReq) GetURL() string {
-	return s.URL
-}
-
-// SetURL sets the value of URL.
-func (s *ScanURLReq) SetURL(val string) {
-	s.URL = val
-}
-
-type Sec0 struct {
-	APIKey string
-}
-
-// GetAPIKey returns the value of APIKey.
-func (s Sec0) GetAPIKey() string {
-	return s.APIKey
-}
-
-// SetAPIKey sets the value of APIKey.
-func (s *Sec0) SetAPIKey(val string) {
-	s.APIKey = val
+// Or returns value if set, or given parameter if does not.
+func (o OptURLInfoOKDataRelationships) Or(d URLInfoOKDataRelationships) URLInfoOKDataRelationships {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
 }
 
 type URLInfoBadRequest struct {
@@ -224,20 +785,135 @@ func (s *URLInfoBadRequest) SetError(val Error) {
 func (*URLInfoBadRequest) uRLInfoRes() {}
 
 type URLInfoOK struct {
-	Data URLObject `json:"data"`
+	Data URLInfoOKData `json:"data"`
 }
 
 // GetData returns the value of Data.
-func (s URLInfoOK) GetData() URLObject {
+func (s URLInfoOK) GetData() URLInfoOKData {
 	return s.Data
 }
 
 // SetData sets the value of Data.
-func (s *URLInfoOK) SetData(val URLObject) {
+func (s *URLInfoOK) SetData(val URLInfoOKData) {
 	s.Data = val
 }
 
 func (*URLInfoOK) uRLInfoRes() {}
+
+type URLInfoOKData struct {
+	Attributes URLObject `json:"attributes"`
+	// Object ID.
+	ID            string                        `json:"id"`
+	Links         URLInfoOKDataLinks            `json:"links"`
+	Relationships OptURLInfoOKDataRelationships `json:"relationships"`
+	// Object type.
+	Type URLInfoOKDataType `json:"type"`
+}
+
+// GetAttributes returns the value of Attributes.
+func (s URLInfoOKData) GetAttributes() URLObject {
+	return s.Attributes
+}
+
+// GetID returns the value of ID.
+func (s URLInfoOKData) GetID() string {
+	return s.ID
+}
+
+// GetLinks returns the value of Links.
+func (s URLInfoOKData) GetLinks() URLInfoOKDataLinks {
+	return s.Links
+}
+
+// GetRelationships returns the value of Relationships.
+func (s URLInfoOKData) GetRelationships() OptURLInfoOKDataRelationships {
+	return s.Relationships
+}
+
+// GetType returns the value of Type.
+func (s URLInfoOKData) GetType() URLInfoOKDataType {
+	return s.Type
+}
+
+// SetAttributes sets the value of Attributes.
+func (s *URLInfoOKData) SetAttributes(val URLObject) {
+	s.Attributes = val
+}
+
+// SetID sets the value of ID.
+func (s *URLInfoOKData) SetID(val string) {
+	s.ID = val
+}
+
+// SetLinks sets the value of Links.
+func (s *URLInfoOKData) SetLinks(val URLInfoOKDataLinks) {
+	s.Links = val
+}
+
+// SetRelationships sets the value of Relationships.
+func (s *URLInfoOKData) SetRelationships(val OptURLInfoOKDataRelationships) {
+	s.Relationships = val
+}
+
+// SetType sets the value of Type.
+func (s *URLInfoOKData) SetType(val URLInfoOKDataType) {
+	s.Type = val
+}
+
+type URLInfoOKDataLinks struct {
+	// Link to the object.
+	Self            string `json:"self"`
+	AdditionalProps URLInfoOKDataLinksAdditional
+}
+
+// GetSelf returns the value of Self.
+func (s URLInfoOKDataLinks) GetSelf() string {
+	return s.Self
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s URLInfoOKDataLinks) GetAdditionalProps() URLInfoOKDataLinksAdditional {
+	return s.AdditionalProps
+}
+
+// SetSelf sets the value of Self.
+func (s *URLInfoOKDataLinks) SetSelf(val string) {
+	s.Self = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *URLInfoOKDataLinks) SetAdditionalProps(val URLInfoOKDataLinksAdditional) {
+	s.AdditionalProps = val
+}
+
+type URLInfoOKDataLinksAdditional map[string]jx.Raw
+
+func (s *URLInfoOKDataLinksAdditional) init() URLInfoOKDataLinksAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type URLInfoOKDataRelationships map[string]jx.Raw
+
+func (s *URLInfoOKDataRelationships) init() URLInfoOKDataRelationships {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Object type.
+type URLInfoOKDataType string
+
+const (
+	URLInfoOKDataTypeURL URLInfoOKDataType = "url"
+)
 
 // URLs doesn't only represent information by themselves, but also can give
 // contextual information about files and other elements on VT.
@@ -849,35 +1525,3 @@ func (s *URLObjectTrackers) SetTimestamp(val int) {
 func (s *URLObjectTrackers) SetURL(val string) {
 	s.URL = val
 }
-
-type UrlsAnalyseBadRequest struct {
-	Error Error `json:"error"`
-}
-
-// GetError returns the value of Error.
-func (s UrlsAnalyseBadRequest) GetError() Error {
-	return s.Error
-}
-
-// SetError sets the value of Error.
-func (s *UrlsAnalyseBadRequest) SetError(val Error) {
-	s.Error = val
-}
-
-func (*UrlsAnalyseBadRequest) urlsAnalyseRes() {}
-
-type UrlsAnalyseOK struct {
-	Data URLObject `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s UrlsAnalyseOK) GetData() URLObject {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *UrlsAnalyseOK) SetData(val URLObject) {
-	s.Data = val
-}
-
-func (*UrlsAnalyseOK) urlsAnalyseRes() {}

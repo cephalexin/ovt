@@ -18,10 +18,10 @@ except ImportError:
 
 REFS = [
     "errors",
+    "files",
     "url-object",
-    "scan-url",
-    "url-info",
-    "urls-analyse"
+    "file-info",
+    "url-info"
 ]
 
 BLOCK_REGEX = compile("\\[block:([a-z]+)](.*?)\\[/block]", DOTALL)
@@ -71,6 +71,153 @@ class Parser:
             ]
         }
 
+    def parse_item(self, it: dict | str) -> tuple[str, dict]:
+        if self.verbose:
+            print(f"parsing item: {it}")
+
+        if isinstance(it, dict):
+            k, v = next(iter(it.items()))
+            if self.verbose:
+                print(f"key: {k}, value: {v}")
+
+            m = ITEM_REGEX.search(k)
+            if not m:
+                print(f"failed to match: {k}")
+
+            if m.group(2) == "string" and isinstance(v, list):  # enum
+                props0 = {
+                    "type": "string",
+                    "description": m.group(3).strip(),
+                    "enum": []
+                }
+                for item0 in v:
+                    ma = ENUM_ITEM_REGEX.search(item0)
+                    if not ma:
+                        print(f"failed to match enum: {item0}")
+                    props0["enum"].append(ma.group(1))
+                    props0["description"] += f"\n* `{ma.group(1)}` - {ma.group(2)}"
+                return m.group(1), props0
+
+            props0 = {
+                "type": "object",
+                "description": m.group(3).strip(),
+                "required": [],
+                "properties": {}
+            }
+
+            for item0 in v:
+                n, p = self.parse_item(item0)
+                if n and p:
+                    props0["required"].append(n)
+                    props0["properties"][n] = p
+
+            return m.group(1), props0
+        else:  # str
+            m = ITEM_REGEX.search(it)
+            if m:
+                props0 = {
+                    "type": m.group(2),
+                    "description": m.group(3).strip()
+                }
+                if m.group(2) == "dictionary":
+                    props0["type"] = "object"
+                    props0["additionalProperties"] = True
+                elif m.group(2) == "list of strings":
+                    props0["type"] = "array"
+                    props0["items"] = {"type": "string"}
+
+                return m.group(1), props0
+            return "", {}
+
+    def parse_object(self, data: dict, object_name: str):
+        root = Node("root")
+        root.add_children(
+            [Node(line) for line in data["doc"]["body"].splitlines()
+             if line.strip().startswith("*") or line.strip().startswith("-")]
+        )
+
+        url_object_schema = {
+            "type": "object",
+            "description": data["doc"]["body"].split("[block:api-header]", 1)[0].strip(),
+            "required": [],
+            "properties": {}
+        }
+
+        for item in root.as_dict()["root"]:
+            name, props = self.parse_item(item)
+            url_object_schema["required"].append(name)
+            url_object_schema["properties"][name] = props
+
+        self.oapi["components"]["schemas"][object_name] = url_object_schema
+
+    def parse_route(self, data: dict, result_name: str, object_type: str = None):
+        oas_def = data["oasDefinition"]
+        path_def = next(iter(oas_def["paths"][data["doc"]["api"]["url"]].values()))
+        if self.verbose:
+            print(f"parsing oasDefinition: {path_def}")
+
+        # don't use the default meta description
+        if not path_def["description"] and "developers hub" not in data["meta"]["description"]:
+            path_def["description"] = data["meta"]["description"]
+        del path_def["x-readme"]
+
+        for k, v in path_def["responses"].items():
+            content = v["content"]["application/json"]
+            del content["examples"]
+
+            object_schema = {
+                "type": "object",
+                "required": ["data" if k.startswith('2') else "error"],
+                "properties": {}
+            }
+            if k.startswith('2'):
+                object_properties = {
+                    "data": {
+                        "type": "object",
+                        "required": ["type", "id", "links", "attributes"],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Object type."
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "Object ID."
+                            },
+                            "links": {
+                                "type": "object",
+                                "required": ["self"],
+                                "properties": {
+                                    "self": {
+                                        "type": "string",
+                                        "description": "Link to the object."
+                                    }
+                                },
+                                "additionalProperties": True
+                            },
+                            "attributes": {
+                                "$ref": f"#/components/schemas/{result_name}"
+                            },
+                            "relationships": {
+                                "type": "object",
+                                "additionalProperties": True
+                            }
+                        }
+                    }
+                }
+                if object_type:  # we know that the type is always going to be one value
+                    object_properties["data"]["properties"]["type"]["enum"] = [object_type]
+
+                object_schema["properties"] = object_properties
+            else:
+                object_schema["properties"]["error"] = {"$ref": "#/components/schemas/Error"}
+
+            content["schema"] = object_schema
+
+        self.oapi["paths"].update(oas_def["paths"])
+
+    # specific implementations below
+
     def parse_errors(self, data: dict):
         table = Table()
         for match in BLOCK_REGEX.findall(data["doc"]["body"]):
@@ -99,117 +246,16 @@ class Parser:
         self.oapi["components"]["schemas"]["Error"] = error_schema
 
     def parse_url_object(self, data: dict):
-        root = Node("root")
-        root.add_children([Node(line) for line in data["doc"]["body"].splitlines() if line.strip().startswith("*")])
+        self.parse_object(data, "URLObject")
 
-        url_object_schema = {
-            "type": "object",
-            "description": data["doc"]["body"].split("[block:api-header]", 1)[0].strip(),
-            "required": [],
-            "properties": {}
-        }
+    def parse_files(self, data: dict):
+        self.parse_object(data, "FileObject")
 
-        def parse_item(it: dict | str) -> tuple[str, dict]:
-            if self.verbose:
-                print(f"parsing item: {it}")
-
-            if isinstance(it, dict):
-                k, v = next(iter(it.items()))
-                if self.verbose:
-                    print(f"key: {k}, value: {v}")
-
-                m = ITEM_REGEX.search(k)
-                if not m:
-                    print(f"failed to match: {k}")
-
-                if m.group(2) == "string" and isinstance(v, list):  # enum
-                    props0 = {
-                        "type": "string",
-                        "description": m.group(3).strip(),
-                        "enum": []
-                    }
-                    for item0 in v:
-                        ma = ENUM_ITEM_REGEX.search(item0)
-                        if not ma:
-                            print(f"failed to match enum: {item0}")
-                        props0["enum"].append(ma.group(1))
-                        props0["description"] += f"\n* `{ma.group(1)}` - {ma.group(2)}"
-                    return m.group(1), props0
-
-                props0 = {
-                    "type": "object",
-                    "description": m.group(3).strip(),
-                    "required": [],
-                    "properties": {}
-                }
-
-                for item0 in v:
-                    n, p = parse_item(item0)
-                    if n and p:
-                        props0["required"].append(n)
-                        props0["properties"][n] = p
-
-                return m.group(1), props0
-            else:  # str
-                m = ITEM_REGEX.search(it)
-                if m:
-                    props0 = {
-                        "type": m.group(2),
-                        "description": m.group(3).strip()
-                    }
-                    if m.group(2) == "dictionary":
-                        props0["type"] = "object"
-                        props0["additionalProperties"] = True
-                    elif m.group(2) == "list of strings":
-                        props0["type"] = "array"
-                        props0["items"] = {"type": "string"}
-
-                    return m.group(1), props0
-                return "", {}
-
-        for item in root.as_dict()["root"]:
-            name, props = parse_item(item)
-            url_object_schema["required"].append(name)
-            url_object_schema["properties"][name] = props
-
-        self.oapi["components"]["schemas"]["URLObject"] = url_object_schema
-
-    def parse_route(self, data: dict, result_name: str):
-        oas_def = data["oasDefinition"]
-        path_def = next(iter(oas_def["paths"][data["doc"]["api"]["url"]].values()))
-        if self.verbose:
-            print(f"parsing oasDefinition: {path_def}")
-
-        # don't use the default meta description
-        if not path_def["description"] and "developers hub" not in data["meta"]["description"]:
-            path_def["description"] = data["meta"]["description"]
-        del path_def["x-readme"]
-
-        for k, v in path_def["responses"].items():
-            content = v["content"]["application/json"]
-            del content["examples"]
-
-            property_key = "data" if k.startswith('2') else "error"
-            content["schema"] = {
-                "type": "object",
-                "required": [property_key],
-                "properties": {
-                    property_key: {
-                        "$ref": f"#/components/schemas/{result_name if k.startswith('2') else 'Error'}"
-                    }
-                }
-            }
-
-        self.oapi["paths"].update(oas_def["paths"])
-
-    def parse_scan_url(self, data: dict):
-        self.parse_route(data, "URLObject")
+    def parse_file_info(self, data: dict):
+        self.parse_route(data, "FileObject", object_type="file")
 
     def parse_url_info(self, data: dict):
-        self.parse_route(data, "URLObject")
-
-    def parse_urls_analyse(self, data: dict):
-        self.parse_route(data, "URLObject")
+        self.parse_route(data, "URLObject", object_type="url")
 
 
 class Table:

@@ -69,9 +69,9 @@
     }
   ],
   "meta": {
-    "description": "VirusTotal's developers hub, the place to learn about VirusTotal's public and private APIs in order to programmatically scan files, check URLs, discover malicious domains, etc.",
+    "description": "Information about files",
     "hidden": false,
-    "title": "Scan URL",
+    "title": "Files",
     "type": "reference"
   },
   "oauth": false,
@@ -87,70 +87,38 @@
       "description": ""
     },
     "api": {
-      "method": "post",
-      "url": "/urls",
+      "method": "get",
+      "url": "",
       "auth": "required",
       "results": {
         "codes": [
           {
-            "name": "",
-            "code": "{}",
+            "status": 200,
             "language": "json",
-            "status": 200
+            "code": "{}",
+            "name": ""
           },
           {
-            "name": "",
-            "code": "{}",
+            "status": 400,
             "language": "json",
-            "status": 400
+            "code": "{}",
+            "name": ""
           }
         ]
       },
-      "params": [
-        {
-          "name": "url",
-          "type": "string",
-          "enumValues": "",
-          "default": "",
-          "desc": "URL to scan",
-          "required": true,
-          "in": "body",
-          "ref": "",
-          "_id": "6233319a1e1b950286e1e89f"
-        },
-        {
-          "name": "x-apikey",
-          "type": "string",
-          "enumValues": "",
-          "default": "",
-          "desc": "Your API key",
-          "required": true,
-          "in": "header",
-          "ref": "",
-          "_id": "6233319a1e1b950286e1e89e"
-        }
-      ],
-      "examples": {
-        "codes": [
-          {
-            "code": "curl --request POST \\\n  --url https://www.virustotal.com/api/v3/urls \\\n  --form url=<Your URL here>\n  --header 'x-apikey: <your API key>'",
-            "language": "curl"
-          }
-        ]
-      },
-      "apiSetting": "623331369fa88800596b1882"
+      "params": []
     },
     "next": {
       "description": "",
       "pages": []
     },
-    "title": "Scan URL",
+    "title": "Files",
     "icon": "",
     "updates": [],
-    "type": "endpoint",
-    "slug": "scan-url",
-    "excerpt": "",
-    "body": "",
+    "type": "basic",
+    "slug": "files",
+    "excerpt": "Information about files",
+    "body": "Files are one of the most important type of objects in the VirusTotal API. We have a huge dataset of more than 2 billion files that have been analysed by VirusTotal over the years. A file object can be obtained either by [uploading a new file](ref:files-scan) to VirusTotal, by [searching for an already existing file hash](ref:file-info) or by other meanings when searching in [VT Enterprise services](ref:search).\n\nA file object ID is its SHA256 hash.\n[block:api-header]\n{\n  \"title\": \"Object Attributes\"\n}\n[/block]\nIn a File object you are going to find some relevant basic attributes about the file and its relationship with VirusTotal:\n\n- `capabilities_tags`: <*list of strings*> list of representative tags related to the file's capabilities. Only available for Premium API users.\n- `creation_date`: <*integer*> extracted when possible from the file's metadata. Indicates when it was built or compiled. It can also be faked by malware creators. UTC timestamp.\n- `downloadable`: <*boolean*>  true if the file can be downloaded, false otherwise. Only available for Premium API users.\n- `first_submission_date`: <*integer*> date when the file was first seen in VirusTotal. UTC timestamp.\n- `last_analysis_date`: <*integer*> most recent scan date. UTC timestamp.\n- `last_analysis_results`: <*dictionary*> latest scan results. For more information about its format, check the [Analysis](#analyses-object) object `results` attribute.\n- `last_analysis_stats`: <*dictionary*> a summary of the latest scan results. For more information about its format, check the [Analysis](#analyses-object) object `stats` attribute.\n- `last_modification_date`: <*integer*> date when the object itself was last modified. UTC timestamp.\n- `last_submission_date`: <*integer*> most recent date the file was posted to VirusTotal. UTC timestamp.\n- `main_icon`: <*dictionary*> icon's relevant hashes, the dictionary contains two keys:\n  - `raw_md5`: <*string*> icon's MD5 hash.\n  - `dhash`: <*string*> icon's difference hash. It can be used to search for files with similar icons using the [/intelligence/search](#intelligence-search) endpoint.\n- `md5`: <*string*> file's MD5 hash.\n- `meaningful_name`: <*string*> the most interesting name out of all file's names.\n- `names`: <*list of strings*> all file names associated with the file.\n- `reputation`: <*integer*> file's score calculated from all votes posted by the VirusTotal community. To know more about how reputation is calculated, check [this article](https://support.virustotal.com/hc/en-us/articles/115002146769-Vote-comment).\n- `sha1`: <*string*> file's SHA1 hash.\n- `sha256`: <*string*> file's SHA256 hash.\n- `sigma_analysis_summary`: <*dictionary*> dictionary containing the number of matched sigma rules group by its severity, same as `sigma_analysis_stats` but split by ruleset. Dictionary key is the ruleset name and value is the stats for that specific ruleset.\n- `size`: <*integer*> file size in bytes.\n- `tags`: <*list of strings*> list of representative attributes.\n- `times_submitted`: <*integer*> number of times the file has been posted to VirusTotal.\n- `total_votes`: <*dictionary*> unweighted number of total votes from the community, divided in \"harmless\" and \"malicious\":\n  - `harmless`: <*integer*> number of positive votes.\n  - `malicious`: <*integer*> number of negative votes.\n- `type_description`: <*string*> describes the file type.\n- `type_extension`: <*string*> specifies file extension.\n- `type_tag`: <*string*> tag representing the file type. Can be used to filter by file type in [VirusTotal intelligence searches](https://support.virustotal.com/hc/en-us/articles/360001387057).\n- `unique_sources`: <*integer*> indicates from how many different sources the file has been posted from.\n- `vhash`: <*string*> in-house similarity clustering algorithm value, based on a simple structural feature hash allows you to find similar files.\n\nAdditionally VirusTotal together with each Antivirus scan runs a set of tool that allows us to collect more information about the file. All this tool information is included in the \"attributes\" key, together with the rest of fields previously described. These tools and the data they extract, are documented in the subsections below.\n[block:code]\n{\n  \"codes\": [\n    {\n      \"code\": \"{\\n    \\\"data\\\": {\\n        \\\"attributes\\\": {\\n          \\t\\\"capabilities_tags\\\": [\\n              \\t\\\"<strings>\\\",....\\n            ],\\n            \\\"creation_date\\\": <int:timestamp>,\\n            \\\"crowdsourced_ids_results\\\": [\\n                {\\n                    \\\"alert_context\\\": [\\n                        {\\n                            \\\"dest_ip\\\": \\\"<string>\\\",\\n                            \\\"dest_port\\\": <int>,\\n                            \\\"hostname\\\": \\\"<string>\\\",\\n                            \\\"protocol\\\": \\\"<string>\\\",\\n                            \\\"src_ip\\\": \\\"<string>\\\",\\n                            \\\"src_port\\\": <int>,\\n                            \\\"url\\\": \\\"<string>\\\"\\n                        }\\n                    ],\\n                    \\\"alert_severity\\\": \\\"<string>\\\",\\n                    \\\"rule_category\\\": \\\"<string>\\\",\\n                    \\\"rule_id\\\": \\\"<string>\\\",\\n                    \\\"rule_msg\\\": \\\"<string>\\\",\\n                    \\\"rule_source\\\": \\\"<string>\\\"\\n                }\\n            ],\\n            \\\"crowdsourced_ids_stats\\\": {\\n                \\\"info\\\": <int>,\\n                \\\"high\\\": <int>,\\n                \\\"low\\\": <int>,\\n                \\\"medium\\\": <int>\\n            },\\n            \\\"crowdsourced_yara_results\\\": [\\n                {\\n                    \\\"description\\\": \\\"<string>\\\",\\n                    \\\"match_in_subfile\\\": <boolean>,\\n                    \\\"rule_name\\\": \\\"<string>\\\",\\n                    \\\"ruleset_id\\\": \\\"<string>\\\",\\n                    \\\"ruleset_name\\\": \\\"<string>\\\",\\n                    \\\"source\\\": \\\"<string>\\\"\\n                }\\n            ],\\n            \\\"downloadable\\\": <bool>,\\n            \\\"first_submission_date\\\": <int:timestamp>,\\n            \\\"last_analysis_date\\\": <int:timestamp>,\\n            \\\"last_analysis_results\\\": {\\n                \\\"<string:engine_name>\\\": {\\n                    \\\"category\\\": \\\"<string>\\\",\\n                    \\\"engine_name\\\": \\\"<string>\\\",\\n                    \\\"engine_update\\\": \\\"<string>\\\",\\n                    \\\"engine_version\\\": \\\"<string>\\\",\\n                    \\\"method\\\": \\\"<string>\\\",\\n                    \\\"result\\\": \\\"<string>\\\"\\n                }\\n            },\\n            \\\"last_analysis_stats\\\": {\\n                \\\"confirmed-timeout\\\": <int>,\\n                \\\"failure\\\": <int>,\\n                \\\"harmless\\\": <int>,\\n                \\\"malicious\\\": <int>,\\n                \\\"suspicious\\\": <int>,\\n                \\\"timeout\\\": <int>,\\n                \\\"type-unsupported\\\": <int>,\\n                \\\"undetected\\\": <int>\\n            },\\n            \\\"last_modification_date\\\": <int:timestamp>,\\n            \\\"last_submission_date\\\": <int:timestamp>,\\n            \\\"md5\\\": \\\"<string>\\\",\\n            \\\"meaningful_name\\\": \\\"<string>\\\",\\n            \\\"names\\\": [\\n                \\\"<strings>\\\",...\\n            ],\\n            \\\"reputation\\\": <int>,\\n            \\\"sandbox_verdicts\\\": {\\n                \\\"<string:sandbox_name>\\\": {\\n                    \\\"category\\\": \\\"<string>\\\",\\n                    \\\"confidence\\\": <int>,\\n                    \\\"malware_classification\\\": [\\n                        \\\"<string>\\\"\\n                    ],\\n                    \\\"malware_names\\\": [\\n                        \\\"<string>\\\"\\n                    ],\\n                    \\\"sandbox_name\\\": \\\"<string>\\\"\\n                }\\n            },\\n            \\\"sha1\\\": \\\"<string>\\\",\\n            \\\"sha256\\\": \\\"<string>\\\",\\n            \\\"sigma_analysis_results\\\": [{\\n              \\\"rule_title\\\": \\\"<string>\\\",\\n              \\\"rule_source\\\": \\\"<string>\\\",\\n              \\\"match_context\\\": [{\\n                \\\"values\\\": {\\n                  \\\"<string>\\\": \\\"<string>\\\"}}],\\n              \\\"rule_level\\\": \\\"<string>\\\",\\n              \\\"rule_description\\\": \\\"<string>\\\",\\n              \\\"rule_author\\\": \\\"<string>\\\",\\n              \\\"rule_id\\\": \\\"<string>\\\"\\n            }],\\n            \\\"sigma_analysis_stats\\\": {\\n                \\\"critical\\\": <int>,\\n                \\\"high\\\": <int>,\\n                \\\"low\\\": <int>,\\n                \\\"medium\\\": <int>\\n            },\\n            \\\"sigma_analysis_summary\\\": {\\n                \\\"<string:ruleset_name>\\\": {\\n                    \\\"critical\\\": <int>,\\n                    \\\"high\\\": <int>,\\n                    \\\"low\\\": <int>,\\n                    \\\"medium\\\": <int>\\n                }\\n            },\\n            \\\"size\\\": <int>,\\n            \\\"tags\\\": [\\n                \\\"<strings>\\\",...\\n            ],\\n            \\\"times_submitted\\\": <int>,\\n            \\\"total_votes\\\": {\\n                \\\"harmless\\\": <int>,\\n                \\\"malicious\\\": <int>\\n            },\\n            \\\"type_description\\\": \\\"<string>\\\",\\n            \\\"type_extension\\\": \\\"<string>\\\",\\n            \\\"type_tag\\\": \\\"<string>\\\",\\n            \\\"unique_sources\\\": <int>,\\n            \\\"vhash\\\": \\\"<string>\\\"\\n        },\\n        \\\"id\\\": \\\"<SHA256>\\\",\\n        \\\"links\\\": {\\n            \\\"self\\\": \\\"https://www.virustotal.com/ui/files/<SHA256>\\\"\\n        },\\n        \\\"type\\\": \\\"file\\\"\\n    }\\n}\",\n      \"language\": \"json\",\n      \"name\": \"\\\"file\\\" object\"\n    },\n    {\n      \"code\": \"{\\n    \\\"data\\\": {\\n        \\\"attributes\\\": {\\n          \\t\\\"capabilities_tags\\\": [\\n                \\\"str_win32_internet_api\\\",\\n                \\\"cred_ff\\\",\\n                \\\"win_mutex\\\",\\n                \\\"keylogger\\\",\\n                \\\"str_win32_winsock2_library\\\",\\n                \\\"sniff_audio\\\",\\n                \\\"network_dropper\\\",\\n                \\\"ldpreload\\\",\\n                \\\"win_files_operation\\\",\\n                \\\"str_win32_wininet_library\\\",\\n                \\\"inject_thread\\\"\\n            ],\\n            \\\"creation_date\\\": 1589251011,\\n            \\\"crowdsourced_ids_results\\\": [\\n              {\\n                \\\"alert_context\\\": [\\n                  {\\n                    \\\"proto\\\": \\\"TCP\\\",\\n                    \\\"src_ip\\\": \\\"152.126.25.42\\\",\\n                    \\\"src_port\\\": 80\\n                  }\\n                ],\\n                \\\"alert_severity\\\": \\\"high\\\",\\n                \\\"rule_category\\\": \\\"Potential Corporate Privacy Violation\\\",\\n                \\\"rule_id\\\": \\\"32481\\\",\\n                \\\"rule_msg\\\": \\\"POLICY-OTHER Remote non-JavaScript file found in script tag src attribute\\\",\\n                \\\"rule_source\\\": \\\"snort\\\"\\n               }\\n            ],\\n            \\\"crowdsourced_ids_stats\\\": {\\n                \\\"high\\\": 1,\\n                \\\"info\\\": 0,\\n                \\\"low\\\": 0,\\n                \\\"medium\\\": 0\\n             },\\n            \\\"crowdsourced_yara_results\\\": [\\n                {\\n                    \\\"description\\\": \\\"Detects a very evil attack\\\",\\n                    \\\"match_in_subfile\\\": true,\\n                    \\\"rule_name\\\": \\\"evil_a_b\\\",\\n                    \\\"ruleset_id\\\": \\\"000abc43\\\",\\n                    \\\"ruleset_name\\\": \\\"evilness\\\",\\n                    \\\"source\\\": \\\"https://example.com/evil/ruleset\\\"\\n                }\\n            ],\\n            \\\"downloadable\\\": true,\\n            \\\"first_submission_date\\\": 1592134853,\\n            \\\"last_analysis_date\\\": 1592141610,\\n            \\\"last_analysis_results\\\": {\\n                \\\"ALYac\\\": {\\n                    \\\"category\\\": \\\"malicious\\\",\\n                    \\\"engine_name\\\": \\\"ALYac\\\",\\n                    \\\"engine_update\\\": \\\"20200614\\\",\\n                    \\\"engine_version\\\": \\\"1.1.1.5\\\",\\n                    \\\"method\\\": \\\"blacklist\\\",\\n                    \\\"result\\\": \\\"Trojan.GenericKDZ.67102\\\"\\n                },\\n                \\\"APEX\\\": {\\n                    \\\"category\\\": \\\"malicious\\\",\\n                    \\\"engine_name\\\": \\\"APEX\\\",\\n                    \\\"engine_update\\\": \\\"20200613\\\",\\n                    \\\"engine_version\\\": \\\"6.36\\\",\\n                    \\\"method\\\": \\\"blacklist\\\",\\n                    \\\"result\\\": \\\"Malicious\\\"\\n                },\\n                \\\"AVG\\\": {\\n                    \\\"category\\\": \\\"malicious\\\",\\n                    \\\"engine_name\\\": \\\"AVG\\\",\\n                    \\\"engine_update\\\": \\\"20200614\\\",\\n                    \\\"engine_version\\\": \\\"18.4.3895.0\\\",\\n                    \\\"method\\\": \\\"blacklist\\\",\\n                    \\\"result\\\": \\\"Win32:PWSX-gen [Trj]\\\"\\n                },\\n                \\\"Acronis\\\": {\\n                    \\\"category\\\": \\\"undetected\\\",\\n                    \\\"engine_name\\\": \\\"Acronis\\\",\\n                    \\\"engine_update\\\": \\\"20200603\\\",\\n                    \\\"engine_version\\\": \\\"1.1.1.76\\\",\\n                    \\\"method\\\": \\\"blacklist\\\",\\n                    \\\"result\\\": null\\n                }\\n            },\\n            \\\"last_analysis_stats\\\": {\\n                \\\"confirmed-timeout\\\": 0,\\n                \\\"failure\\\": 0,\\n                \\\"harmless\\\": 0,\\n                \\\"malicious\\\": 3,\\n                \\\"suspicious\\\": 0,\\n                \\\"timeout\\\": 0,\\n                \\\"type-unsupported\\\": 0,\\n                \\\"undetected\\\": 2\\n            },\\n            \\\"last_modification_date\\\": 1592141790,\\n            \\\"last_submission_date\\\": 1592141610,\\n            \\\"md5\\\": \\\"5a430646b4d3c04f0b43b444ad48443f\\\",\\n            \\\"meaningful_name\\\": \\\"o4oz44Z4E444.exe\\\",\\n            \\\"names\\\": [\\n                \\\"myfile.exe\\\",\\n                \\\"o4oz44Z4E444.exe\\\"\\n            ],\\n            \\\"reputation\\\": 0,\\n            \\\"sandbox_verdicts\\\": {\\n                \\\"VirusTotal Jujubox\\\": {\\n                    \\\"category\\\": \\\"malicious\\\",\\n                    \\\"confidence\\\": 70,\\n                    \\\"malware_classification\\\": [\\n                        \\\"MALWARE\\\",\\n                        \\\"TROJAN\\\"\\n                    ],\\n                    \\\"malware_names\\\": [\\n                        \\\"XMRigMiner\\\"\\n                    ],\\n                    \\\"sandbox_name\\\": \\\"VirusTotal Jujubox\\\"\\n                },\\n            },\\n            \\\"sha1\\\": \\\"54fdf53af86f90bf446f0a5fe26f6e4fd5f4c9fd\\\",\\n            \\\"sha256\\\": \\\"3f6fa13af90cf967f0b5f5d07f413f9d1f39d2fa366f09ff760fcd3fd8bf6fbf\\\",\\n\\t\\t\\t\\\"sigma_analysis_summary\\\": {\\n\\t\\t\\t\\t\\\"Sigma Integrated Rule Set (GitHub)\\\": {\\n\\t\\t\\t\\t\\t\\\"high\\\": 0,\\n\\t\\t\\t\\t\\t\\\"medium\\\": 0,\\n\\t\\t\\t\\t\\t\\\"critical\\\": 0,\\n\\t\\t\\t\\t\\t\\\"low\\\": 1\\n\\t\\t\\t\\t},\\n\\t\\t\\t\\t\\\"SOC Prime Threat Detection Marketplace\\\": {\\n\\t\\t\\t\\t\\t\\\"high\\\": 1,\\n\\t\\t\\t\\t\\t\\\"medium\\\": 0,\\n\\t\\t\\t\\t\\t\\\"critical\\\": 0,\\n\\t\\t\\t\\t\\t\\\"low\\\": 0\\n\\t\\t\\t\\t}\\n\\t\\t\\t},\\n\\t\\t\\t\\\"sigma_analysis_stats\\\": {\\n\\t\\t\\t\\t\\\"high\\\": 1,\\n\\t\\t\\t\\t\\\"medium\\\": 0,\\n\\t\\t\\t\\t\\\"critical\\\": 0,\\n\\t\\t\\t\\t\\\"low\\\": 1\\n\\t\\t\\t},\\n\\t\\t\\t\\\"sigma_analysis_results\\\": [\\n\\t\\t\\t\\t{\\n\\t\\t\\t\\t\\t\\\"rule_title\\\": \\\"File deletion via CMD (via cmdline)\\\",\\n\\t\\t\\t\\t\\t\\\"rule_source\\\": \\\"SOC Prime Threat Detection Marketplace\\\",\\n\\t\\t\\t\\t\\t\\\"match_context\\\": [\\n\\t\\t\\t\\t\\t\\t{\\n\\t\\t\\t\\t\\t\\t\\t\\\"values\\\": {\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"TerminalSessionId\\\": \\\"0\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ProcessGuid\\\": \\\"C784477D-ED34-629E-4105-000000003000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ProcessId\\\": \\\"4164\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Product\\\": \\\"Microsoft\u00ae Windows\u00ae Operating System\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Description\\\": \\\"Windows Command Processor\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Company\\\": \\\"Microsoft Corporation\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentProcessGuid\\\": \\\"C784477D-ED16-629E-2305-000000003000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"User\\\": \\\"NT AUTHORITY\\\\\\\\SYSTEM\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Hashes\\\": \\\"MD5=4E2ACF4F8A396486AB4268C94A6A245F,SHA256=9A7C58BD98D70631AA1473F7B57B426DB367D72429A5455B433A05EE251F3236,IMPHASH=8542FB14699D84D7E8DA92F66145C7FE\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"OriginalFileName\\\": \\\"Cmd.Exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentImage\\\": \\\"C:\\\\\\\\Program Files\\\\\\\\rempl\\\\\\\\sedlauncher.exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"FileVersion\\\": \\\"10.0.17134.1 (WinBuild.160101.0800)\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentProcessId\\\": \\\"5204\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"CurrentDirectory\\\": \\\"C:\\\\\\\\Windows\\\\\\\\system32\\\\\\\\\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"CommandLine\\\": \\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\cmd.exe /c C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\ipconfig.exe /flushdns >C:\\\\\\\\Windows\\\\\\\\TEMP\\\\\\\\ipconfig.out 2>&1\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"EventID\\\": \\\"1\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"LogonGuid\\\": \\\"C784477D-EC60-629E-E703-000000000000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"LogonId\\\": \\\"999\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Image\\\": \\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\cmd.exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"IntegrityLevel\\\": \\\"System\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentCommandLine\\\": \\\"\\\\\\\"C:\\\\\\\\Program Files\\\\\\\\rempl\\\\\\\\sedlauncher.exe\\\\\\\"\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"UtcTime\\\": \\\"2022-06-07 06:16:20.702\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"RuleName\\\": \\\"-\\\"\\n\\t\\t\\t\\t\\t\\t\\t}\\n\\t\\t\\t\\t\\t\\t},\\n\\t\\t\\t\\t\\t\\t{\\n\\t\\t\\t\\t\\t\\t\\t\\\"values\\\": {\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"TerminalSessionId\\\": \\\"0\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ProcessGuid\\\": \\\"C784477D-ED34-629E-4405-000000003000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ProcessId\\\": \\\"1368\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Product\\\": \\\"Microsoft\u00ae Windows\u00ae Operating System\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Description\\\": \\\"Windows Command Processor\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Company\\\": \\\"Microsoft Corporation\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentProcessGuid\\\": \\\"C784477D-ED16-629E-2305-000000003000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"User\\\": \\\"NT AUTHORITY\\\\\\\\SYSTEM\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Hashes\\\": \\\"MD5=4E2ACF4F8A396486AB4268C94A6A245F,SHA256=9A7C58BD98D70631AA1473F7B57B426DB367D72429A5455B433A05EE251F3236,IMPHASH=8542FB14699D84D7E8DA92F66145C7FE\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"OriginalFileName\\\": \\\"Cmd.Exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentImage\\\": \\\"C:\\\\\\\\Program Files\\\\\\\\rempl\\\\\\\\sedlauncher.exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"FileVersion\\\": \\\"10.0.17134.1 (WinBuild.160101.0800)\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentProcessId\\\": \\\"5204\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"CurrentDirectory\\\": \\\"C:\\\\\\\\Windows\\\\\\\\system32\\\\\\\\\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"CommandLine\\\": \\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\cmd.exe /c C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\netsh.exe interface ip delete arpcache >C:\\\\\\\\Windows\\\\\\\\TEMP\\\\\\\\ipconfig.out 2>&1\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"EventID\\\": \\\"1\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"LogonGuid\\\": \\\"C784477D-EC60-629E-E703-000000000000\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"LogonId\\\": \\\"999\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"Image\\\": \\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\cmd.exe\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"IntegrityLevel\\\": \\\"System\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"ParentCommandLine\\\": \\\"\\\\\\\"C:\\\\\\\\Program Files\\\\\\\\rempl\\\\\\\\sedlauncher.exe\\\\\\\"\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"UtcTime\\\": \\\"2022-06-07 06:16:20.741\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"RuleName\\\": \\\"-\\\"\\n\\t\\t\\t\\t\\t\\t\\t}\\n\\t\\t\\t\\t\\t\\t}\\n\\t\\t\\t\\t\\t],\\n\\t\\t\\t\\t\\t\\\"rule_level\\\": \\\"high\\\",\\n\\t\\t\\t\\t\\t\\\"rule_description\\\": \\\"Detects \\\\\\\"cmd\\\\\\\" utilization to self-delete files in some critical Windows destinations.\\\",\\n\\t\\t\\t\\t\\t\\\"rule_author\\\": \\\"Ariel Millahuel\\\",\\n\\t\\t\\t\\t\\t\\\"rule_id\\\": \\\"f9333cf120369debd56e4e238fffa10bdb2a1497c11e08a082befd02f9f3bdf2\\\"\\n\\t\\t\\t\\t},\\n\\t\\t\\t\\t{\\n\\t\\t\\t\\t\\t\\\"rule_title\\\": \\\"Failed Code Integrity Checks\\\",\\n\\t\\t\\t\\t\\t\\\"rule_source\\\": \\\"Sigma Integrated Rule Set (GitHub)\\\",\\n\\t\\t\\t\\t\\t\\\"match_context\\\": [\\n\\t\\t\\t\\t\\t\\t{\\n\\t\\t\\t\\t\\t\\t\\t\\\"values\\\": {\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"EventID\\\": \\\"5038\\\",\\n\\t\\t\\t\\t\\t\\t\\t\\t\\\"param1\\\": \\\"\\\\\\\\Device\\\\\\\\HarddiskVolume4\\\\\\\\Program Files (x86)\\\\\\\\sandbox\\\\\\\\driver\\\\\\\\sandbox-driver.sys\\\"\\n\\t\\t\\t\\t\\t\\t\\t}\\n\\t\\t\\t\\t\\t\\t}\\n\\t\\t\\t\\t\\t],\\n\\t\\t\\t\\t\\t\\\"rule_level\\\": \\\"low\\\",\\n\\t\\t\\t\\t\\t\\\"rule_description\\\": \\\"Code integrity failures may indicate tampered executables.\\\",\\n\\t\\t\\t\\t\\t\\\"rule_author\\\": \\\"Thomas Patzke\\\",\\n\\t\\t\\t\\t\\t\\\"rule_id\\\": \\\"134564d292d785dff102940b8a1ee06dba2d462c5fb852124b3771a49d7885f1\\\"\\n\\t\\t\\t\\t}\\n\\t\\t\\t],\\n            \\\"size\\\": 374272,\\n            \\\"tags\\\": [\\n                \\\"peexe\\\",\\n                \\\"runtime-modules\\\",\\n                \\\"assembly\\\",\\n                \\\"direct-cpu-clock-access\\\",\\n                \\\"detect-debug-environment\\\"\\n            ],\\n            \\\"times_submitted\\\": 3,\\n            \\\"total_votes\\\": {\\n                \\\"harmless\\\": 0,\\n                \\\"malicious\\\": 0\\n            },\\n            \\\"type_description\\\": \\\"Win32 EXE\\\",\\n            \\\"type_tag\\\": \\\"exe\\\",\\n            \\\"type_tag\\\": \\\"peexe\\\",\\n            \\\"unique_sources\\\": 3,\\n            \\\"vhash\\\": \\\"2350f6f515f29f93f147f0f0\\\"\\n        },\\n        \\\"id\\\": \\\"3f6fa13af90cf967f0b5f5d07f413f9d1f39d2fa366f09ff760fcd3fd8bf6fbf\\\",\\n        \\\"links\\\": {\\n            \\\"self\\\": \\\"https://www.virustotal.com/ui/files/3f6fa13af90cf967f0b5f5d07f413f9d1f39d2fa366f09ff760fcd3fd8bf6fbf\\\"\\n        },\\n        \\\"type\\\": \\\"file\\\"\\n    }\\n}\",\n      \"language\": \"json\",\n      \"name\": \"Example\"\n    }\n  ]\n}\n[/block]\n\n[block:api-header]\n{\n  \"title\": \"Relationships\"\n}\n[/block]\nIn addition to the previously described attributes (and the ones described in the following subsections), File objects contain relationships with other objects in our dataset that can be retrieved as explained in the [Relationships](ref:relationships) section.\n\nThe following table shows a summary of available relationships for file objects.\n[block:parameters]\n{\n  \"data\": {\n    \"h-0\": \"Relationship\",\n    \"h-1\": \"Description\",\n    \"h-2\": \"Accessibility\",\n    \"h-3\": \"Return object type\",\n    \"0-0\": \"analyses\",\n    \"0-1\": \"Analyses for the file\",\n    \"0-2\": \"VT Enterprise users only.\",\n    \"0-3\": \"A list of [Analyses](ref:analyses-object)\",\n    \"1-0\": \"behaviours\",\n    \"1-1\": \"Behaviour reports for the file. See [File behaviour](#file-behaviour-summary).\",\n    \"1-2\": \"Everyone.\",\n    \"1-3\": \"A list of [File behaviour](ref:file-behaviour-summary).\",\n    \"2-0\": \"bundled_files\",\n    \"2-1\": \"Files bundled within the file.\",\n    \"2-2\": \"Everyone.\",\n    \"2-3\": \"A list of [Files](ref:files).\",\n    \"3-0\": \"carbonblack_children\",\n    \"3-1\": \"Files derived from the file according to Carbon Black.\",\n    \"3-2\": \"VT Enterprise users only.\",\n    \"3-3\": \"A list of [Files](ref:files).\",\n    \"4-0\": \"carbonblack_parents\",\n    \"4-1\": \"Files from where the file was derived according to Carbon Black.\",\n    \"4-2\": \"VT Enterprise users only.\",\n    \"4-3\": \"A list of [Files](ref:files).\",\n    \"5-0\": \"ciphered_bundled_files\",\n    \"5-1\": \"Files within a ciphered bundle.\",\n    \"5-2\": \"VT Enterprise users only.\",\n    \"5-3\": \"A list of [Files](ref:files).\",\n    \"6-0\": \"ciphered_parents\",\n    \"6-1\": \"Compressed bundle files where a file is contained.\",\n    \"6-2\": \"VT Enterprise users only.\",\n    \"6-3\": \"A list of [Files](ref:files).\",\n    \"7-0\": \"clues\",\n    \"7-1\": \"Clues for the file.\",\n    \"7-2\": \"VT Enterprise users only.\",\n    \"7-3\": \"A list of [Clues](ref:clues-object).\",\n    \"8-0\": \"comments\",\n    \"8-1\": \"Comments for the file.\",\n    \"8-2\": \"Everyone.\",\n    \"8-3\": \"A list of [Comments](ref:comments).\",\n    \"9-0\": \"compressed_parents\",\n    \"9-1\": \"Compressed files that contain the file.\",\n    \"9-2\": \"VT Enterprise users only.\",\n    \"9-3\": \"A list of [Files](ref:files).\",\n    \"10-0\": \"contacted_domains\",\n    \"10-1\": \"Domains contacted by the file.\",\n    \"10-2\": \"Everyone.\",\n    \"10-3\": \"A list of [Domains](ref:domains-1).\",\n    \"11-0\": \"contacted_ips\",\n    \"11-1\": \"IP addresses contacted by the file.\",\n    \"11-2\": \"Everyone.\",\n    \"11-3\": \"A list of [IP addresses](ref:ip-object).\",\n    \"12-0\": \"contacted_urls\",\n    \"12-1\": \"URLs contacted by the file.\",\n    \"12-2\": \"Everyone.\",\n    \"12-3\": \"A list of [URLs](ref:url-object).\",\n    \"14-0\": \"email_attachments\",\n    \"14-1\": \"Files attached to the email.\",\n    \"14-2\": \"VT Enterprise users only.\",\n    \"14-3\": \"A list of [Files](ref:files).\",\n    \"15-0\": \"email_parents\",\n    \"15-1\": \"Email files that contained the file.\",\n    \"15-2\": \"VT Enterprise users only.\",\n    \"15-3\": \"A list of [Files](ref:files).\",\n    \"16-0\": \"embedded_domains\",\n    \"16-1\": \"Domain names embedded in the file.\",\n    \"16-2\": \"VT Enterprise users only.\",\n    \"16-3\": \"A list of [Domains](ref:domains-1).\",\n    \"17-0\": \"embedded_ips\",\n    \"17-1\": \"IP addresses embedded in the file.\",\n    \"17-2\": \"VT Enterprise users only.\",\n    \"17-3\": \"A list of [IP addresses](ref:ip-object).\",\n    \"18-0\": \"embedded_urls\",\n    \"18-1\": \"URLs embedded in the file.\",\n    \"18-2\": \"VT Enterprise users only.\",\n    \"18-3\": \"A list of [URLs](ref:url-object).\",\n    \"19-0\": \"execution_parents\",\n    \"19-1\": \"Files that executed the file.\",\n    \"19-2\": \"Everyone.\",\n    \"19-3\": \"A list of [Files](ref:files).\",\n    \"20-0\": \"graphs\",\n    \"20-1\": \"Graphs that include the file.\",\n    \"20-2\": \"Everyone.\",\n    \"20-3\": \"A list of [Graphs](ref:graph-object).\",\n    \"21-0\": \"itw_domains\",\n    \"21-1\": \"In the wild domain names from where the file has been downloaded.\",\n    \"21-2\": \"VT Enterprise users only.\",\n    \"21-3\": \"A list of [Domains](ref:domains-1).\",\n    \"23-0\": \"itw_urls\",\n    \"23-1\": \"In the wild URLs from where the file has been downloaded.\",\n    \"23-2\": \"VT Enterprise users only.\",\n    \"23-3\": \"A list of [URLs](ref:url-object).\",\n    \"25-0\": \"overlay_parents\",\n    \"25-1\": \"File that contain the file as an overlay.\",\n    \"25-2\": \"VT Enterprise users only.\",\n    \"25-3\": \"A list of [Files](ref:files).\",\n    \"26-0\": \"pcap_children\",\n    \"26-1\": \"Files contained within the PCAP file.\",\n    \"26-2\": \"VT Enterprise users only.\",\n    \"26-3\": \"A list of [Files](ref:files).\",\n    \"27-0\": \"pcap_parents\",\n    \"27-1\": \"PCAP files that contain the file.\",\n    \"27-2\": \"VT Enterprise users only.\",\n    \"27-3\": \"A list of [Files](ref:files).\",\n    \"29-0\": \"pe_resource_parents\",\n    \"29-1\": \"PE files containing the file as a resource.\",\n    \"29-2\": \"Everyone.\",\n    \"29-3\": \"A list of [Files](ref:files).\",\n    \"32-0\": \"similar_files\",\n    \"32-1\": \"Files that are similar to the file.\",\n    \"32-2\": \"VT Enterprise users only.\",\n    \"32-3\": \"A list of [Files](ref:files).\",\n    \"33-0\": \"submissions\",\n    \"33-1\": \"Submissions for the file.\",\n    \"33-2\": \"VT Enterprise users only.\",\n    \"33-3\": \"A list of [Submissions](ref:submission-object).\",\n    \"34-0\": \"screenshots\",\n    \"34-1\": \"Screenshots related to the sandbox execution of the file.\",\n    \"34-2\": \"VT Enterprise users only.\",\n    \"34-3\": \"A list of [Screenshots](ref:screenshots).\",\n    \"35-0\": \"votes\",\n    \"35-1\": \"Votes for the file.\",\n    \"35-2\": \"Everyone\",\n    \"35-3\": \"A list of [Votes](ref:vote-object).\",\n    \"13-0\": \"dropped_files\",\n    \"13-1\": \"Files dropped by the file during its execution.\",\n    \"13-2\": \"Everyone.\",\n    \"13-3\": \"A list of [Files](ref:files).\",\n    \"22-0\": \"itw_ips\",\n    \"22-1\": \"In the wild IP addresses from where the file has been downloaded.\",\n    \"22-2\": \"VT Enterprise users only.\",\n    \"22-3\": \"A list of [IP addresses](ref:ip-object).\",\n    \"24-0\": \"overlay_children\",\n    \"24-1\": \"Files contained by the file as an overlay.\",\n    \"24-2\": \"VT Enterprise users only.\",\n    \"24-3\": \"A list of [Files](ref:files).\",\n    \"28-0\": \"pe_resource_children\",\n    \"28-1\": \"Files contained by a PE file as a resource.\",\n    \"28-2\": \"Everyone.\",\n    \"28-3\": \"A list of [Files](ref:files).\",\n    \"30-0\": \"related_references\",\n    \"30-1\": \"References related to the file.\",\n    \"30-2\": \"VT Enterprise users only.\",\n    \"30-3\": \"A list of [References](ref:references).\",\n    \"31-0\": \"related_threat_actors\",\n    \"31-1\": \"Threat actors related to the file.\",\n    \"31-2\": \"VT Enterprise users only.\",\n    \"31-3\": \"A list of [Threat Actors](ref:threat-actors).\"\n  },\n  \"cols\": 4,\n  \"rows\": 36\n}\n[/block]",
     "order": 0,
     "isReference": true,
     "deprecated": false,
@@ -160,15 +128,9 @@
     "link_external": false,
     "pendingAlgoliaPublish": false,
     "previousSlug": "",
-    "slugUpdatedAt": "2022-03-17T01:27:03.338Z",
-    "revision": 1,
-    "_id": "6233319a1e1b950286e1e89d",
-    "createdAt": "2022-03-17T13:03:22.583Z",
-    "updatedAt": "2022-03-17T13:03:22.583Z",
-    "user": "5ed5198117c86f081d995b0f",
-    "parentDoc": "5ae0aa79b525d60003223259",
-    "category": "5ae0a9a84487290003157b76",
-    "project": "58eddbdc4992e43900525065",
+    "slugUpdatedAt": "2020-09-29T19:48:36.105Z",
+    "revision": 3,
+    "_id": "5c8b9ceabb5e8100ee0f0d65",
     "version": {
       "version": "3.0",
       "version_clean": "3.0.0",
@@ -254,126 +216,20 @@
       "project": "58eddbdc4992e43900525065",
       "__v": 26
     },
-    "__v": 2,
-    "isApi": true,
+    "updatedAt": "2022-10-19T08:33:16.146Z",
+    "createdAt": "2019-03-15T12:39:06.660Z",
+    "project": "58eddbdc4992e43900525065",
+    "category": "5c8b96d6f0fd330119f211e8",
+    "user": "5c3db627ee2355001917127e",
+    "__v": 0,
+    "parentDoc": null,
+    "isApi": false,
     "tutorials": [],
-    "id": "6233319a1e1b950286e1e89d",
-    "swagger": {
-      "path": "/urls"
-    }
+    "id": "5c8b9ceabb5e8100ee0f0d65"
   },
   "hideTOC": false,
-  "oasDefinition": {
-    "openapi": "3.1.0",
-    "info": {
-      "title": "VT scan URL form",
-      "version": "3.0"
-    },
-    "servers": [
-      {
-        "url": "https://www.virustotal.com/api/v3"
-      }
-    ],
-    "components": {
-      "securitySchemes": {}
-    },
-    "security": [
-      {}
-    ],
-    "paths": {
-      "/urls": {
-        "post": {
-          "summary": "Scan URL",
-          "description": "",
-          "operationId": "scan-url",
-          "parameters": [
-            {
-              "name": "x-apikey",
-              "in": "header",
-              "description": "Your API key",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "content": {
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "url"
-                  ],
-                  "properties": {
-                    "url": {
-                      "type": "string",
-                      "description": "URL to scan"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "200",
-              "content": {
-                "application/json": {
-                  "examples": {
-                    "Result": {
-                      "value": "{}"
-                    }
-                  },
-                  "schema": {
-                    "type": "object",
-                    "properties": {}
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "400",
-              "content": {
-                "application/json": {
-                  "examples": {
-                    "Result": {
-                      "value": "{}"
-                    }
-                  },
-                  "schema": {
-                    "type": "object",
-                    "properties": {}
-                  }
-                }
-              }
-            }
-          },
-          "deprecated": false,
-          "x-readme": {
-            "code-samples": [
-              {
-                "language": "curl",
-                "code": "curl --request POST \\\n  --url https://www.virustotal.com/api/v3/urls \\\n  --form url=<Your URL here>\n  --header 'x-apikey: <your API key>'"
-              }
-            ],
-            "samples-languages": [
-              "curl"
-            ]
-          }
-        }
-      }
-    },
-    "x-readme": {
-      "headers": [],
-      "explorer-enabled": true,
-      "proxy-enabled": true,
-      "samples-enabled": true
-    },
-    "x-readme-fauxas": true,
-    "_id": "623331369fa88800596b1882:6233319a1e1b950286e1e89d"
-  },
-  "oasPublicUrl": "@virustotal/v3.0#1k2godhyl0v06jsw",
+  "oasDefinition": null,
+  "oasPublicUrl": null,
   "sidebars": {
     "docs": [
       {
@@ -32700,7 +32556,7 @@
       "is_stable": true
     }
   },
-  "reqUrl": "/reference/scan-url",
+  "reqUrl": "/reference/files",
   "version": {
     "_id": "58eddc69211d4d0f009d4b2a",
     "forked_from": "58eddbdc4992e43900525068",

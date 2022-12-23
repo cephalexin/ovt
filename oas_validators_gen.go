@@ -64,7 +64,7 @@ func (s ErrorCode) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
-func (s ScanURLBadRequest) Validate() error {
+func (s FileInfoBadRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := s.Error.Validate(); err != nil {
@@ -82,7 +82,7 @@ func (s ScanURLBadRequest) Validate() error {
 	}
 	return nil
 }
-func (s ScanURLOK) Validate() error {
+func (s FileInfoOK) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := s.Data.Validate(); err != nil {
@@ -92,6 +92,83 @@ func (s ScanURLOK) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "data",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s FileInfoOKData) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Attributes.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attributes",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s FileInfoOKDataType) Validate() error {
+	switch s {
+	case "file":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s FileObject) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.CapabilitiesTags == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "capabilities_tags",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Names == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "names",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Tags == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "tags",
 			Error: err,
 		})
 	}
@@ -135,6 +212,43 @@ func (s URLInfoOK) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+func (s URLInfoOKData) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Attributes.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attributes",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s URLInfoOKDataType) Validate() error {
+	switch s {
+	case "url":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 func (s URLObject) Validate() error {
 	var failures []validate.FieldError
@@ -218,40 +332,4 @@ func (s URLObjectLastAnalysisResultsCategory) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
-}
-func (s UrlsAnalyseBadRequest) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := s.Error.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "error",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s UrlsAnalyseOK) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := s.Data.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "data",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }

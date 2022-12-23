@@ -10,12 +10,21 @@
     }
   ],
   "paths": {
-    "/urls": {
-      "post": {
-        "summary": "Scan URL",
-        "description": "",
-        "operationId": "scan-url",
+    "/files/{id}": {
+      "get": {
+        "summary": "Get a file report",
+        "description": "Retrieve information about a file",
+        "operationId": "file-info",
         "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "SHA-256, SHA-1 or MD5 identifying the file",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
           {
             "name": "x-apikey",
             "in": "header",
@@ -26,24 +35,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "url"
-                ],
-                "properties": {
-                  "url": {
-                    "type": "string",
-                    "description": "URL to scan"
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "200",
@@ -56,7 +47,46 @@
                   ],
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/URLObject"
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "id",
+                        "links",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Object type.",
+                          "enum": [
+                            "file"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Object ID."
+                        },
+                        "links": {
+                          "type": "object",
+                          "required": [
+                            "self"
+                          ],
+                          "properties": {
+                            "self": {
+                              "type": "string",
+                              "description": "Link to the object."
+                            }
+                          },
+                          "additionalProperties": true
+                        },
+                        "attributes": {
+                          "$ref": "#/components/schemas/FileObject"
+                        },
+                        "relationships": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      }
                     }
                   }
                 }
@@ -82,7 +112,8 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "security": []
       }
     },
     "/urls/{id}": {
@@ -122,74 +153,46 @@
                   ],
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/URLObject"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "error"
-                  ],
-                  "properties": {
-                    "error": {
-                      "$ref": "#/components/schemas/Error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated": false,
-        "security": []
-      }
-    },
-    "/urls/{id}/analyse": {
-      "post": {
-        "summary": "Request a URL rescan (re-analyze)",
-        "description": "Returns a Analysis object descriptor which can be used in the GET/analyses/{id} API endpoint to get further information about the analysis status.",
-        "operationId": "urls-analyse",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "URL identifier",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "name": "x-apikey",
-            "in": "header",
-            "description": "Your API key",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "data"
-                  ],
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/URLObject"
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "id",
+                        "links",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Object type.",
+                          "enum": [
+                            "url"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Object ID."
+                        },
+                        "links": {
+                          "type": "object",
+                          "required": [
+                            "self"
+                          ],
+                          "properties": {
+                            "self": {
+                              "type": "string",
+                              "description": "Link to the object."
+                            }
+                          },
+                          "additionalProperties": true
+                        },
+                        "attributes": {
+                          "$ref": "#/components/schemas/URLObject"
+                        },
+                        "relationships": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      }
                     }
                   }
                 }
@@ -261,6 +264,184 @@
           },
           "message": {
             "type": "string"
+          }
+        }
+      },
+      "FileObject": {
+        "type": "object",
+        "description": "Files are one of the most important type of objects in the VirusTotal API. We have a huge dataset of more than 2 billion files that have been analysed by VirusTotal over the years. A file object can be obtained either by [uploading a new file](ref:files-scan) to VirusTotal, by [searching for an already existing file hash](ref:file-info) or by other meanings when searching in [VT Enterprise services](ref:search).\n\nA file object ID is its SHA256 hash.",
+        "required": [
+          "capabilities_tags",
+          "creation_date",
+          "downloadable",
+          "first_submission_date",
+          "last_analysis_date",
+          "last_analysis_results",
+          "last_analysis_stats",
+          "last_modification_date",
+          "last_submission_date",
+          "main_icon",
+          "md5",
+          "meaningful_name",
+          "names",
+          "reputation",
+          "sha1",
+          "sha256",
+          "sigma_analysis_summary",
+          "size",
+          "tags",
+          "times_submitted",
+          "total_votes",
+          "type_description",
+          "type_extension",
+          "type_tag",
+          "unique_sources",
+          "vhash"
+        ],
+        "properties": {
+          "capabilities_tags": {
+            "type": "array",
+            "description": "list of representative tags related to the file's capabilities. Only available for Premium API users.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "creation_date": {
+            "type": "integer",
+            "description": "extracted when possible from the file's metadata. Indicates when it was built or compiled. It can also be faked by malware creators. UTC timestamp."
+          },
+          "downloadable": {
+            "type": "boolean",
+            "description": "true if the file can be downloaded, false otherwise. Only available for Premium API users."
+          },
+          "first_submission_date": {
+            "type": "integer",
+            "description": "date when the file was first seen in VirusTotal. UTC timestamp."
+          },
+          "last_analysis_date": {
+            "type": "integer",
+            "description": "most recent scan date. UTC timestamp."
+          },
+          "last_analysis_results": {
+            "type": "object",
+            "description": "latest scan results. For more information about its format, check the [Analysis](#analyses-object) object `results` attribute.",
+            "additionalProperties": true
+          },
+          "last_analysis_stats": {
+            "type": "object",
+            "description": "a summary of the latest scan results. For more information about its format, check the [Analysis](#analyses-object) object `stats` attribute.",
+            "additionalProperties": true
+          },
+          "last_modification_date": {
+            "type": "integer",
+            "description": "date when the object itself was last modified. UTC timestamp."
+          },
+          "last_submission_date": {
+            "type": "integer",
+            "description": "most recent date the file was posted to VirusTotal. UTC timestamp."
+          },
+          "main_icon": {
+            "type": "object",
+            "description": "icon's relevant hashes, the dictionary contains two keys:",
+            "required": [
+              "raw_md5",
+              "dhash"
+            ],
+            "properties": {
+              "raw_md5": {
+                "type": "string",
+                "description": "icon's MD5 hash."
+              },
+              "dhash": {
+                "type": "string",
+                "description": "icon's difference hash. It can be used to search for files with similar icons using the [/intelligence/search](#intelligence-search) endpoint."
+              }
+            }
+          },
+          "md5": {
+            "type": "string",
+            "description": "file's MD5 hash."
+          },
+          "meaningful_name": {
+            "type": "string",
+            "description": "the most interesting name out of all file's names."
+          },
+          "names": {
+            "type": "array",
+            "description": "all file names associated with the file.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reputation": {
+            "type": "integer",
+            "description": "file's score calculated from all votes posted by the VirusTotal community. To know more about how reputation is calculated, check [this article](https://support.virustotal.com/hc/en-us/articles/115002146769-Vote-comment)."
+          },
+          "sha1": {
+            "type": "string",
+            "description": "file's SHA1 hash."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "file's SHA256 hash."
+          },
+          "sigma_analysis_summary": {
+            "type": "object",
+            "description": "dictionary containing the number of matched sigma rules group by its severity, same as `sigma_analysis_stats` but split by ruleset. Dictionary key is the ruleset name and value is the stats for that specific ruleset.",
+            "additionalProperties": true
+          },
+          "size": {
+            "type": "integer",
+            "description": "file size in bytes."
+          },
+          "tags": {
+            "type": "array",
+            "description": "list of representative attributes.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "times_submitted": {
+            "type": "integer",
+            "description": "number of times the file has been posted to VirusTotal."
+          },
+          "total_votes": {
+            "type": "object",
+            "description": "unweighted number of total votes from the community, divided in \"harmless\" and \"malicious\":",
+            "required": [
+              "harmless",
+              "malicious"
+            ],
+            "properties": {
+              "harmless": {
+                "type": "integer",
+                "description": "number of positive votes."
+              },
+              "malicious": {
+                "type": "integer",
+                "description": "number of negative votes."
+              }
+            }
+          },
+          "type_description": {
+            "type": "string",
+            "description": "describes the file type."
+          },
+          "type_extension": {
+            "type": "string",
+            "description": "specifies file extension."
+          },
+          "type_tag": {
+            "type": "string",
+            "description": "tag representing the file type. Can be used to filter by file type in [VirusTotal intelligence searches](https://support.virustotal.com/hc/en-us/articles/360001387057)."
+          },
+          "unique_sources": {
+            "type": "integer",
+            "description": "indicates from how many different sources the file has been posted from."
+          },
+          "vhash": {
+            "type": "string",
+            "description": "in-house similarity clustering algorithm value, based on a simple structural feature hash allows you to find similar files."
           }
         }
       },

@@ -2,8 +2,10 @@
 
 package ovt
 
-// ScanURLParams is parameters of scan-url operation.
-type ScanURLParams struct {
+// FileInfoParams is parameters of file-info operation.
+type FileInfoParams struct {
+	// SHA-256, SHA-1 or MD5 identifying the file.
+	ID string
 	// Your API key.
 	XApikey string
 }
@@ -14,12 +16,4 @@ type URLInfoParams struct {
 	XApikey string
 	// URL identifier or base64 representation of URL to scan (w/o padding).
 	ID string
-}
-
-// UrlsAnalyseParams is parameters of urls-analyse operation.
-type UrlsAnalyseParams struct {
-	// URL identifier.
-	ID string
-	// Your API key.
-	XApikey string
 }

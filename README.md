@@ -17,13 +17,13 @@ The specification and library can be regenerated from scratch with `go generate`
 
 #### Supported objects
 
-* URL
+* [File](https://developers.virustotal.com/reference/files)
+* [URL](https://developers.virustotal.com/reference/url-object)
 
 #### Supported routes
 
-* POST `/urls`
+* GET `/files/{id}`
 * GET `/urls/{id}`
-* POST `/urls/{id}/analyse`
 
 ## Disclaimer
 

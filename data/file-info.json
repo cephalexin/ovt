@@ -69,9 +69,9 @@
     }
   ],
   "meta": {
-    "description": "Returns a Analysis object descriptor which can be used in the GET/analyses/{id} API endpoint to get further information about the analysis status.",
+    "description": "Retrieve information about a file",
     "hidden": false,
-    "title": "Request a URL rescan (re-analyze)",
+    "title": "Get a file report",
     "type": "reference"
   },
   "oauth": false,
@@ -87,32 +87,15 @@
       "description": ""
     },
     "api": {
-      "method": "post",
-      "url": "/urls/{id}/analyse",
+      "method": "get",
+      "url": "/files/{id}",
       "auth": "never",
-      "apiSetting": "5909b3e4b662a10f00aef355",
       "examples": {
         "codes": [
           {
             "name": "cURL",
-            "language": "curl",
-            "code": "curl --request POST \\\n  --url https://www.virustotal.com/api/v3/urls/{id}/analyse \\\n  --header 'x-apikey: <your API key>'"
-          }
-        ]
-      },
-      "results": {
-        "codes": [
-          {
-            "status": 200,
-            "language": "json",
-            "code": "{}",
-            "name": ""
-          },
-          {
-            "status": 400,
-            "language": "json",
-            "code": "{}",
-            "name": ""
+            "code": "curl --request GET \\\n  --url https://www.virustotal.com/api/v3/files/{id} \\\n  --header 'x-apikey: <your API key>'",
+            "language": "curl"
           }
         ]
       },
@@ -122,11 +105,11 @@
           "type": "string",
           "enumValues": "",
           "default": "",
-          "desc": "URL identifier",
+          "desc": "SHA-256, SHA-1 or MD5 identifying the file",
           "required": false,
           "in": "path",
           "ref": "",
-          "_id": "5ad5b3100a46a3000376aafe"
+          "_id": "5909b933651f500f001dda96"
         },
         {
           "name": "x-apikey",
@@ -137,21 +120,38 @@
           "required": true,
           "in": "header",
           "ref": "",
-          "_id": "5ad5b3100a46a3000376aafd"
+          "_id": "5ac699839c79c500039cac36"
         }
-      ]
+      ],
+      "results": {
+        "codes": [
+          {
+            "status": 200,
+            "language": "json",
+            "code": "",
+            "name": ""
+          },
+          {
+            "name": "",
+            "status": 400,
+            "language": "json",
+            "code": "{}"
+          }
+        ]
+      },
+      "apiSetting": "5909b3e4b662a10f00aef355"
     },
     "next": {
       "description": "",
       "pages": []
     },
-    "title": "Request a URL rescan (re-analyze)",
+    "title": "Get a file report",
     "icon": "",
     "updates": [],
     "type": "endpoint",
-    "slug": "urls-analyse",
-    "excerpt": "",
-    "body": "[block:callout]\n{\n  \"type\": \"info\",\n  \"body\": \"See [URL identifiers](ref:url#url-identifiers) from more information about how to generate a valid URL identifier for a URL.\"\n}\n[/block]\nReturns a [Analysis](ref:analyses-object) object descriptor which can be used in the [GET/analyses/{id}](ref:analysis) API endpoint to get further information about the analysis status.\n[block:code]\n{\n  \"codes\": [\n    {\n      \"code\": \"{\\n    \\\"data\\\": {\\n        \\\"id\\\": \\\"u-a354494a73382ea0b4bc47f4c9e8d6c578027cd4598196dc88f05a22b5817293-1604933101\\\",\\n        \\\"type\\\": \\\"analysis\\\"\\n    }\\n}\\n\",\n      \"language\": \"json\",\n      \"name\": \"Example response\"\n    }\n  ]\n}\n[/block]",
+    "slug": "file-info",
+    "excerpt": "Retrieve information about a file",
+    "body": "Returns a [File](ref:files) object.",
     "order": 2,
     "isReference": true,
     "deprecated": false,
@@ -161,10 +161,15 @@
     "link_external": false,
     "pendingAlgoliaPublish": false,
     "previousSlug": "",
-    "slugUpdatedAt": "2020-08-17T12:58:05.753Z",
+    "slugUpdatedAt": "2021-11-18T19:13:21.489Z",
     "revision": 1,
-    "_id": "5ad5b3100a46a3000376aafc",
+    "_id": "5909b7cf69014e0f00421a33",
     "project": "58eddbdc4992e43900525065",
+    "createdAt": "2017-05-03T10:58:23.508Z",
+    "category": "5ae0a9a84487290003157b76",
+    "githubsync": "",
+    "parentDoc": "5ae0aafafdb370000396c632",
+    "user": "5ed5198117c86f081d995b0f",
     "version": {
       "version": "3.0",
       "version_clean": "3.0.0",
@@ -250,18 +255,13 @@
       "project": "58eddbdc4992e43900525065",
       "__v": 26
     },
-    "category": "5ae0a9a84487290003157b76",
-    "user": "5ed5198117c86f081d995b0f",
-    "createdAt": "2018-04-17T08:40:48.490Z",
-    "githubsync": "",
-    "__v": 26,
-    "parentDoc": "5ae0aa79b525d60003223259",
-    "updatedAt": "2022-02-04T07:36:54.195Z",
+    "__v": 25,
+    "updatedAt": "2021-11-19T14:49:51.091Z",
     "isApi": true,
     "tutorials": [],
-    "id": "5ad5b3100a46a3000376aafc",
+    "id": "5909b7cf69014e0f00421a33",
     "swagger": {
-      "path": "/urls/{id}/analyse"
+      "path": "/files/{id}"
     }
   },
   "hideTOC": false,
@@ -291,16 +291,16 @@
       }
     ],
     "paths": {
-      "/urls/{id}/analyse": {
-        "post": {
-          "summary": "Request a URL rescan (re-analyze)",
-          "description": "",
-          "operationId": "urls-analyse",
+      "/files/{id}": {
+        "get": {
+          "summary": "Get a file report",
+          "description": "Retrieve information about a file",
+          "operationId": "file-info",
           "parameters": [
             {
               "name": "id",
               "in": "path",
-              "description": "URL identifier",
+              "description": "SHA-256, SHA-1 or MD5 identifying the file",
               "schema": {
                 "type": "string"
               },
@@ -323,12 +323,8 @@
                 "application/json": {
                   "examples": {
                     "Result": {
-                      "value": "{}"
+                      "value": ""
                     }
-                  },
-                  "schema": {
-                    "type": "object",
-                    "properties": {}
                   }
                 }
               }
@@ -356,7 +352,7 @@
             "code-samples": [
               {
                 "language": "curl",
-                "code": "curl --request POST \\\n  --url https://www.virustotal.com/api/v3/urls/{id}/analyse \\\n  --header 'x-apikey: <your API key>'",
+                "code": "curl --request GET \\\n  --url https://www.virustotal.com/api/v3/files/{id} \\\n  --header 'x-apikey: <your API key>'",
                 "name": "cURL"
               }
             ],
@@ -374,7 +370,7 @@
       "samples-enabled": true
     },
     "x-readme-fauxas": true,
-    "_id": "5909b3e4b662a10f00aef355:5ad5b3100a46a3000376aafc"
+    "_id": "5909b3e4b662a10f00aef355:5909b7cf69014e0f00421a33"
   },
   "oasPublicUrl": "@virustotal/v3.0#b31bk38clbp47gh3",
   "sidebars": {
@@ -32703,7 +32699,7 @@
       "is_stable": true
     }
   },
-  "reqUrl": "/reference/urls-analyse",
+  "reqUrl": "/reference/file-info",
   "version": {
     "_id": "58eddc69211d4d0f009d4b2a",
     "forked_from": "58eddbdc4992e43900525068",

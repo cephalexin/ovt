@@ -80,6 +80,170 @@ components:
       - code
       - message
       type: object
+    FileObject:
+      description: 'Files are one of the most important type of objects in the VirusTotal
+        API. We have a huge dataset of more than 2 billion files that have been analysed
+        by VirusTotal over the years. A file object can be obtained either by [uploading
+        a new file](ref:files-scan) to VirusTotal, by [searching for an already existing
+        file hash](ref:file-info) or by other meanings when searching in [VT Enterprise
+        services](ref:search).
+
+
+        A file object ID is its SHA256 hash.'
+      properties:
+        capabilities_tags:
+          description: list of representative tags related to the file's capabilities.
+            Only available for Premium API users.
+          items:
+            type: string
+          type: array
+        creation_date:
+          description: extracted when possible from the file's metadata. Indicates
+            when it was built or compiled. It can also be faked by malware creators.
+            UTC timestamp.
+          type: integer
+        downloadable:
+          description: true if the file can be downloaded, false otherwise. Only available
+            for Premium API users.
+          type: boolean
+        first_submission_date:
+          description: date when the file was first seen in VirusTotal. UTC timestamp.
+          type: integer
+        last_analysis_date:
+          description: most recent scan date. UTC timestamp.
+          type: integer
+        last_analysis_results:
+          additionalProperties: true
+          description: latest scan results. For more information about its format,
+            check the [Analysis](#analyses-object) object `results` attribute.
+          type: object
+        last_analysis_stats:
+          additionalProperties: true
+          description: a summary of the latest scan results. For more information
+            about its format, check the [Analysis](#analyses-object) object `stats`
+            attribute.
+          type: object
+        last_modification_date:
+          description: date when the object itself was last modified. UTC timestamp.
+          type: integer
+        last_submission_date:
+          description: most recent date the file was posted to VirusTotal. UTC timestamp.
+          type: integer
+        main_icon:
+          description: 'icon''s relevant hashes, the dictionary contains two keys:'
+          properties:
+            dhash:
+              description: icon's difference hash. It can be used to search for files
+                with similar icons using the [/intelligence/search](#intelligence-search)
+                endpoint.
+              type: string
+            raw_md5:
+              description: icon's MD5 hash.
+              type: string
+          required:
+          - raw_md5
+          - dhash
+          type: object
+        md5:
+          description: file's MD5 hash.
+          type: string
+        meaningful_name:
+          description: the most interesting name out of all file's names.
+          type: string
+        names:
+          description: all file names associated with the file.
+          items:
+            type: string
+          type: array
+        reputation:
+          description: file's score calculated from all votes posted by the VirusTotal
+            community. To know more about how reputation is calculated, check [this
+            article](https://support.virustotal.com/hc/en-us/articles/115002146769-Vote-comment).
+          type: integer
+        sha1:
+          description: file's SHA1 hash.
+          type: string
+        sha256:
+          description: file's SHA256 hash.
+          type: string
+        sigma_analysis_summary:
+          additionalProperties: true
+          description: dictionary containing the number of matched sigma rules group
+            by its severity, same as `sigma_analysis_stats` but split by ruleset.
+            Dictionary key is the ruleset name and value is the stats for that specific
+            ruleset.
+          type: object
+        size:
+          description: file size in bytes.
+          type: integer
+        tags:
+          description: list of representative attributes.
+          items:
+            type: string
+          type: array
+        times_submitted:
+          description: number of times the file has been posted to VirusTotal.
+          type: integer
+        total_votes:
+          description: 'unweighted number of total votes from the community, divided
+            in "harmless" and "malicious":'
+          properties:
+            harmless:
+              description: number of positive votes.
+              type: integer
+            malicious:
+              description: number of negative votes.
+              type: integer
+          required:
+          - harmless
+          - malicious
+          type: object
+        type_description:
+          description: describes the file type.
+          type: string
+        type_extension:
+          description: specifies file extension.
+          type: string
+        type_tag:
+          description: tag representing the file type. Can be used to filter by file
+            type in [VirusTotal intelligence searches](https://support.virustotal.com/hc/en-us/articles/360001387057).
+          type: string
+        unique_sources:
+          description: indicates from how many different sources the file has been
+            posted from.
+          type: integer
+        vhash:
+          description: in-house similarity clustering algorithm value, based on a
+            simple structural feature hash allows you to find similar files.
+          type: string
+      required:
+      - capabilities_tags
+      - creation_date
+      - downloadable
+      - first_submission_date
+      - last_analysis_date
+      - last_analysis_results
+      - last_analysis_stats
+      - last_modification_date
+      - last_submission_date
+      - main_icon
+      - md5
+      - meaningful_name
+      - names
+      - reputation
+      - sha1
+      - sha256
+      - sigma_analysis_summary
+      - size
+      - tags
+      - times_submitted
+      - total_votes
+      - type_description
+      - type_extension
+      - type_tag
+      - unique_sources
+      - vhash
+      type: object
     URLObject:
       description: 'URLs doesn''t only represent information by themselves, but also
         can give
@@ -313,29 +477,24 @@ info:
   version: '3.0'
 openapi: 3.1.0
 paths:
-  /urls:
-    post:
+  /files/{id}:
+    get:
       deprecated: false
-      description: ''
-      operationId: scan-url
+      description: Retrieve information about a file
+      operationId: file-info
       parameters:
+      - description: SHA-256, SHA-1 or MD5 identifying the file
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
       - description: Your API key
         in: header
         name: x-apikey
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              properties:
-                url:
-                  description: URL to scan
-                  type: string
-              required:
-              - url
-              type: object
       responses:
         '200':
           content:
@@ -343,7 +502,35 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: '#/components/schemas/URLObject'
+                    properties:
+                      attributes:
+                        $ref: '#/components/schemas/FileObject'
+                      id:
+                        description: Object ID.
+                        type: string
+                      links:
+                        additionalProperties: true
+                        properties:
+                          self:
+                            description: Link to the object.
+                            type: string
+                        required:
+                        - self
+                        type: object
+                      relationships:
+                        additionalProperties: true
+                        type: object
+                      type:
+                        description: Object type.
+                        enum:
+                        - file
+                        type: string
+                    required:
+                    - type
+                    - id
+                    - links
+                    - attributes
+                    type: object
                 required:
                 - data
                 type: object
@@ -359,7 +546,8 @@ paths:
                 - error
                 type: object
           description: '400'
-      summary: Scan URL
+      security: []
+      summary: Get a file report
   /urls/{id}:
     get:
       deprecated: false
@@ -385,7 +573,35 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: '#/components/schemas/URLObject'
+                    properties:
+                      attributes:
+                        $ref: '#/components/schemas/URLObject'
+                      id:
+                        description: Object ID.
+                        type: string
+                      links:
+                        additionalProperties: true
+                        properties:
+                          self:
+                            description: Link to the object.
+                            type: string
+                        required:
+                        - self
+                        type: object
+                      relationships:
+                        additionalProperties: true
+                        type: object
+                      type:
+                        description: Object type.
+                        enum:
+                        - url
+                        type: string
+                    required:
+                    - type
+                    - id
+                    - links
+                    - attributes
+                    type: object
                 required:
                 - data
                 type: object
@@ -403,50 +619,6 @@ paths:
           description: '400'
       security: []
       summary: Get a URL analysis report
-  /urls/{id}/analyse:
-    post:
-      deprecated: false
-      description: Returns a Analysis object descriptor which can be used in the GET/analyses/{id}
-        API endpoint to get further information about the analysis status.
-      operationId: urls-analyse
-      parameters:
-      - description: URL identifier
-        in: path
-        name: id
-        required: true
-        schema:
-          type: string
-      - description: Your API key
-        in: header
-        name: x-apikey
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  data:
-                    $ref: '#/components/schemas/URLObject'
-                required:
-                - data
-                type: object
-          description: '200'
-        '400':
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    $ref: '#/components/schemas/Error'
-                required:
-                - error
-                type: object
-          description: '400'
-      security: []
-      summary: Request a URL rescan (re-analyze)
 security:
 - sec0: []
 servers:

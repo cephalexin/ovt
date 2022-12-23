@@ -21,12 +21,11 @@ import (
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
-	sec       SecuritySource
 	baseClient
 }
 
 // NewClient initializes new Client defined by OAS.
-func NewClient(serverURL string, sec SecuritySource, opts ...Option) (*Client, error) {
+func NewClient(serverURL string, opts ...Option) (*Client, error) {
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
@@ -37,7 +36,6 @@ func NewClient(serverURL string, sec SecuritySource, opts ...Option) (*Client, e
 	}
 	return &Client{
 		serverURL:  u,
-		sec:        sec,
 		baseClient: c,
 	}, nil
 }
@@ -57,16 +55,15 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
-// ScanURL invokes scan-url operation.
+// FileInfo invokes file-info operation.
 //
-// Scan URL.
+// Retrieve information about a file.
 //
-// POST /urls
-func (c *Client) ScanURL(ctx context.Context, request OptScanURLReq, params ScanURLParams) (res ScanURLRes, err error) {
+// GET /files/{id}
+func (c *Client) FileInfo(ctx context.Context, params FileInfoParams) (res FileInfoRes, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("scan-url"),
+		otelogen.OperationID("file-info"),
 	}
-	// Validate request before sending.
 
 	// Run stopwatch.
 	startTime := time.Now()
@@ -79,7 +76,7 @@ func (c *Client) ScanURL(ctx context.Context, request OptScanURLReq, params Scan
 	c.requests.Add(ctx, 1, otelAttrs...)
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, "ScanURL",
+	ctx, span := c.cfg.Tracer.Start(ctx, "FileInfo",
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -96,15 +93,26 @@ func (c *Client) ScanURL(ctx context.Context, request OptScanURLReq, params Scan
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/urls"
+	u.Path += "/files/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "POST", u, nil)
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeScanURLRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "EncodeHeaderParams"
@@ -121,11 +129,6 @@ func (c *Client) ScanURL(ctx context.Context, request OptScanURLReq, params Scan
 		}
 	}
 
-	stage = "Security:Sec0"
-	if err := c.securitySec0(ctx, "ScanURL", r); err != nil {
-		return res, errors.Wrap(err, "security \"Sec0\"")
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -134,7 +137,7 @@ func (c *Client) ScanURL(ctx context.Context, request OptScanURLReq, params Scan
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeScanURLResponse(resp)
+	result, err := decodeFileInfoResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -225,98 +228,6 @@ func (c *Client) URLInfo(ctx context.Context, params URLInfoParams) (res URLInfo
 
 	stage = "DecodeResponse"
 	result, err := decodeURLInfoResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// UrlsAnalyse invokes urls-analyse operation.
-//
-// Returns a Analysis object descriptor which can be used in the GET/analyses/{id} API endpoint to
-// get further information about the analysis status.
-//
-// POST /urls/{id}/analyse
-func (c *Client) UrlsAnalyse(ctx context.Context, params UrlsAnalyseParams) (res UrlsAnalyseRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("urls-analyse"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, otelAttrs...)
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, "UrlsAnalyse",
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, otelAttrs...)
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/urls/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		u.Path += e.Result()
-	}
-	u.Path += "/analyse"
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "POST", u, nil)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	stage = "EncodeHeaderParams"
-	h := uri.NewHeaderEncoder(r.Header)
-	{
-		cfg := uri.HeaderParameterEncodingConfig{
-			Name:    "x-apikey",
-			Explode: false,
-		}
-		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.XApikey))
-		}); err != nil {
-			return res, errors.Wrap(err, "encode header param x-apikey")
-		}
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeUrlsAnalyseResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
