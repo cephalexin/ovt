@@ -1,0 +1,501 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "VirusTotal API v3",
+    "version": "3.0"
+  },
+  "servers": [
+    {
+      "url": "https://www.virustotal.com/api/v3"
+    }
+  ],
+  "paths": {
+    "/urls": {
+      "post": {
+        "summary": "Scan URL",
+        "description": "",
+        "operationId": "scan-url",
+        "parameters": [
+          {
+            "name": "x-apikey",
+            "in": "header",
+            "description": "Your API key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "URL to scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/URLObject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/urls/{id}": {
+      "get": {
+        "summary": "Get a URL analysis report",
+        "description": "Returns a URL object.",
+        "operationId": "url-info",
+        "parameters": [
+          {
+            "name": "x-apikey",
+            "in": "header",
+            "description": "Your API key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "URL identifier or base64 representation of URL to scan (w/o padding)",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/URLObject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/urls/{id}/analyse": {
+      "post": {
+        "summary": "Request a URL rescan (re-analyze)",
+        "description": "Returns a Analysis object descriptor which can be used in the GET/analyses/{id} API endpoint to get further information about the analysis status.",
+        "operationId": "urls-analyse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "URL identifier",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "x-apikey",
+            "in": "header",
+            "description": "Your API key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/URLObject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sec0": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Apikey"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "description": "The VirusTotal API follows the conventional HTTP response codes to indicate success or failure. Codes in the `2xx` range indicate success. Codes in the `4xx` range indicate an error in the request (e.g. a missing parameter, a resource was not found). Codes in the `5xx` range indicate an error in VirusTotal's servers and should be rare.\n\nUnsuccessful requests return additional information about the error in JSON format.",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "BadRequestError",
+              "WrongCredentialsError",
+              "AuthenticationRequiredError",
+              "TooManyRequestsError",
+              "ForbiddenError",
+              "NotFoundError",
+              "QuotaExceededError",
+              "UserNotActiveError",
+              "InvalidArgumentError",
+              "AlreadyExistsError",
+              "TransientError",
+              "UnselectiveContentQueryError",
+              "UnsupportedContentQueryError",
+              "NotAvailableYet",
+              "FailedDependencyError",
+              "DeadlineExceededError"
+            ],
+            "description": "* `BadRequestError` (400) - The API request is invalid or malformed. The message usually provides details about why the request is not valid.\n* `WrongCredentialsError` (401) - The provided API key is incorrect.\n* `AuthenticationRequiredError` (401) - The operation requires an authenticated user. Verify that you have provided your API key.\n* `TooManyRequestsError` (429) - Too many requests.\n* `ForbiddenError` (403) - You are not allowed to perform the requested operation.\n* `NotFoundError` (404) - The requested resource was not found.\n* `QuotaExceededError` (429) - You have exceeded one of your quotas (minute, daily or monthly). Daily quotas are reset every day at 00:00 UTC.\nYou may have run out of disk space and/or number of files on your VirusTotal Monitor account.\n* `UserNotActiveError` (401) - The user account is not active. Make sure you properly activated your account by following the link sent to your email.\n* `InvalidArgumentError` (400) - Some of the provided arguments are incorrect.\n* `AlreadyExistsError` (409) - The resource already exists.\n* `TransientError` (503) - Transient server error.  Retry might work.\n* `UnselectiveContentQueryError` (400) - Content search query is not selective enough.\n* `UnsupportedContentQueryError` (400) - Unsupported content search query.\n* `NotAvailableYet` (400) - The resource is not available yet, but will become available later.\n* `FailedDependencyError` (424) - The request depended on another request and that request failed.\n* `DeadlineExceededError` (504) - The operation took too long to complete."
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "URLObject": {
+        "type": "object",
+        "description": "URLs doesn't only represent information by themselves, but also can give\ncontextual information about files and other elements on VT.\n\nDifferent URL calls may return different URL-related objects that we list here.",
+        "required": [
+          "categories",
+          "favicon",
+          "first_submission_date",
+          "html_meta",
+          "last_analysis_date",
+          "last_analysis_results",
+          "last_analysis_stats",
+          "last_final_url",
+          "last_http_response_code",
+          "last_http_response_content_length",
+          "last_http_response_content_sha256",
+          "last_http_response_cookies",
+          "last_http_response_headers",
+          "last_modification_date",
+          "last_submission_date",
+          "outgoing_links",
+          "redirection_chain",
+          "reputation",
+          "tags",
+          "targeted_brand",
+          "times_submitted",
+          "title",
+          "total_votes",
+          "trackers",
+          "url"
+        ],
+        "properties": {
+          "categories": {
+            "type": "object",
+            "description": "they key is the partner who categorised the URL and the value is the URL's category according to that partner.",
+            "additionalProperties": true
+          },
+          "favicon": {
+            "type": "object",
+            "description": "dictionary including difference hash and md5 hash of the URL's favicon. Only returned in premium API.",
+            "properties": {
+              "dhash": {
+                "type": "string",
+                "description": "difference hash"
+              },
+              "raw_md5": {
+                "type": "string",
+                "description": "favicon's MD5 hash."
+              }
+            }
+          },
+          "first_submission_date": {
+            "type": "integer",
+            "description": "UTC timestamp of the date where the URL was first submitted to VirusTotal."
+          },
+          "html_meta": {
+            "type": "object",
+            "description": "containing all meta tags (only for URLs downloading a HTML). Keys are the meta tag name and value is a list containing all values of that meta tag.",
+            "additionalProperties": true
+          },
+          "last_analysis_date": {
+            "type": "integer",
+            "description": "UTC timestamp representing last time the URL was scanned."
+          },
+          "last_analysis_results": {
+            "type": "object",
+            "description": "result from URL scanners. dict with scanner name as key and a dict with notes/result from that scanner as value.",
+            "properties": {
+              "category": {
+                "type": "string",
+                "description": "normalized result. can be:\n* `harmless` - (site is not malicious),\n* `undetected` - (scanner has no opinion about this site),\n* `suspicious` - (scanner thinks the site is suspicious),\n* `malicious` - (scanner thinks the site is malicious).",
+                "enum": [
+                  "harmless",
+                  "undetected",
+                  "suspicious",
+                  "malicious"
+                ]
+              },
+              "engine_name": {
+                "type": "string",
+                "description": "complete name of the URL scanning service."
+              },
+              "method": {
+                "type": "string",
+                "description": "type of service given by that URL scanning service (i.e. \"blacklist\")."
+              },
+              "result": {
+                "type": "string",
+                "description": "raw value returned by the URL scanner (\"clean\", \"malicious\", \"suspicious\", \"phishing\"). It may vary from scanner to scanner, hence the need for the \"category\" field for normalisation."
+              }
+            }
+          },
+          "last_analysis_stats": {
+            "type": "object",
+            "description": "number of different results from this scans.",
+            "properties": {
+              "harmless": {
+                "type": "integer",
+                "description": "number of reports saying that is harmless."
+              },
+              "malicious": {
+                "type": "integer",
+                "description": "number of reports saying that is malicious."
+              },
+              "suspicious": {
+                "type": "integer",
+                "description": "number of reports saying that is suspicious."
+              },
+              "timeout": {
+                "type": "integer",
+                "description": "number of timeouts when checking this URL."
+              },
+              "undetected": {
+                "type": "integer",
+                "description": "number of reports saying that is undetected."
+              }
+            }
+          },
+          "last_final_url": {
+            "type": "string",
+            "description": "if the original URL redirects, where does it end."
+          },
+          "last_http_response_code": {
+            "type": "integer",
+            "description": "HTTP response code of the last response."
+          },
+          "last_http_response_content_length": {
+            "type": "integer",
+            "description": "length in bytes of the content received."
+          },
+          "last_http_response_content_sha256": {
+            "type": "string",
+            "description": "URL response body's SHA256 hash."
+          },
+          "last_http_response_cookies": {
+            "type": "object",
+            "description": "containing the website's cookies.",
+            "additionalProperties": true
+          },
+          "last_http_response_headers": {
+            "type": "object",
+            "description": "containing headers and values of last HTTP response.",
+            "additionalProperties": true
+          },
+          "last_modification_date": {
+            "type": "integer",
+            "description": "UTC timestamp representing last modification date."
+          },
+          "last_submission_date": {
+            "type": "integer",
+            "description": "UTC timestamp representing last time it was sent to be analysed."
+          },
+          "outgoing_links": {
+            "type": "array",
+            "description": "containing links to different domains.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "redirection_chain": {
+            "type": "array",
+            "description": "history of redirections followed when visiting a given URL. The last URL of the chain is not included in the list since it is available at the `last_final_url` attribute.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reputation": {
+            "type": "integer",
+            "description": "value of votes from VT community."
+          },
+          "tags": {
+            "type": "array",
+            "description": "tags.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targeted_brand": {
+            "type": "object",
+            "description": "targeted brand info extracted from phishing engines.",
+            "additionalProperties": true
+          },
+          "times_submitted": {
+            "type": "integer",
+            "description": "number of times that URL has been checked."
+          },
+          "title": {
+            "type": "string",
+            "description": "webpage title."
+          },
+          "total_votes": {
+            "type": "object",
+            "description": "containing the number of positive (\"harmless\") and negative (\"malicious\") votes received from VT community.",
+            "properties": {
+              "harmless": {
+                "type": "integer",
+                "description": "number of positive votes."
+              },
+              "malicious": {
+                "type": "integer",
+                "description": "number of negative votes."
+              }
+            }
+          },
+          "trackers": {
+            "type": "object",
+            "description": "contains all found trackers in that URL in a historical manner. Every key is a tracker name, which is a dictionary containing:",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "tracker ID, if available."
+              },
+              "timestamp": {
+                "type": "integer",
+                "description": "tracker ingestion date as UNIX timestamp."
+              },
+              "url": {
+                "type": "string",
+                "description": "tracker script URL."
+              }
+            }
+          },
+          "url": {
+            "type": "string",
+            "description": "original URL to be scanned."
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "sec0": []
+    }
+  ]
+}

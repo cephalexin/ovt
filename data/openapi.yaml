@@ -1,0 +1,432 @@
+components:
+  schemas:
+    Error:
+      description: 'The VirusTotal API follows the conventional HTTP response codes
+        to indicate success or failure. Codes in the `2xx` range indicate success.
+        Codes in the `4xx` range indicate an error in the request (e.g. a missing
+        parameter, a resource was not found). Codes in the `5xx` range indicate an
+        error in VirusTotal''s servers and should be rare.
+
+
+        Unsuccessful requests return additional information about the error in JSON
+        format.'
+      properties:
+        code:
+          description: '* `BadRequestError` (400) - The API request is invalid or
+            malformed. The message usually provides details about why the request
+            is not valid.
+
+            * `WrongCredentialsError` (401) - The provided API key is incorrect.
+
+            * `AuthenticationRequiredError` (401) - The operation requires an authenticated
+            user. Verify that you have provided your API key.
+
+            * `TooManyRequestsError` (429) - Too many requests.
+
+            * `ForbiddenError` (403) - You are not allowed to perform the requested
+            operation.
+
+            * `NotFoundError` (404) - The requested resource was not found.
+
+            * `QuotaExceededError` (429) - You have exceeded one of your quotas (minute,
+            daily or monthly). Daily quotas are reset every day at 00:00 UTC.
+
+            You may have run out of disk space and/or number of files on your VirusTotal
+            Monitor account.
+
+            * `UserNotActiveError` (401) - The user account is not active. Make sure
+            you properly activated your account by following the link sent to your
+            email.
+
+            * `InvalidArgumentError` (400) - Some of the provided arguments are incorrect.
+
+            * `AlreadyExistsError` (409) - The resource already exists.
+
+            * `TransientError` (503) - Transient server error.  Retry might work.
+
+            * `UnselectiveContentQueryError` (400) - Content search query is not selective
+            enough.
+
+            * `UnsupportedContentQueryError` (400) - Unsupported content search query.
+
+            * `NotAvailableYet` (400) - The resource is not available yet, but will
+            become available later.
+
+            * `FailedDependencyError` (424) - The request depended on another request
+            and that request failed.
+
+            * `DeadlineExceededError` (504) - The operation took too long to complete.'
+          enum:
+          - BadRequestError
+          - WrongCredentialsError
+          - AuthenticationRequiredError
+          - TooManyRequestsError
+          - ForbiddenError
+          - NotFoundError
+          - QuotaExceededError
+          - UserNotActiveError
+          - InvalidArgumentError
+          - AlreadyExistsError
+          - TransientError
+          - UnselectiveContentQueryError
+          - UnsupportedContentQueryError
+          - NotAvailableYet
+          - FailedDependencyError
+          - DeadlineExceededError
+          type: string
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    URLObject:
+      description: 'URLs doesn''t only represent information by themselves, but also
+        can give
+
+        contextual information about files and other elements on VT.
+
+
+        Different URL calls may return different URL-related objects that we list
+        here.'
+      properties:
+        categories:
+          additionalProperties: true
+          description: they key is the partner who categorised the URL and the value
+            is the URL's category according to that partner.
+          type: object
+        favicon:
+          description: dictionary including difference hash and md5 hash of the URL's
+            favicon. Only returned in premium API.
+          properties:
+            dhash:
+              description: difference hash
+              type: string
+            raw_md5:
+              description: favicon's MD5 hash.
+              type: string
+          type: object
+        first_submission_date:
+          description: UTC timestamp of the date where the URL was first submitted
+            to VirusTotal.
+          type: integer
+        html_meta:
+          additionalProperties: true
+          description: containing all meta tags (only for URLs downloading a HTML).
+            Keys are the meta tag name and value is a list containing all values of
+            that meta tag.
+          type: object
+        last_analysis_date:
+          description: UTC timestamp representing last time the URL was scanned.
+          type: integer
+        last_analysis_results:
+          description: result from URL scanners. dict with scanner name as key and
+            a dict with notes/result from that scanner as value.
+          properties:
+            category:
+              description: 'normalized result. can be:
+
+                * `harmless` - (site is not malicious),
+
+                * `undetected` - (scanner has no opinion about this site),
+
+                * `suspicious` - (scanner thinks the site is suspicious),
+
+                * `malicious` - (scanner thinks the site is malicious).'
+              enum:
+              - harmless
+              - undetected
+              - suspicious
+              - malicious
+              type: string
+            engine_name:
+              description: complete name of the URL scanning service.
+              type: string
+            method:
+              description: type of service given by that URL scanning service (i.e.
+                "blacklist").
+              type: string
+            result:
+              description: raw value returned by the URL scanner ("clean", "malicious",
+                "suspicious", "phishing"). It may vary from scanner to scanner, hence
+                the need for the "category" field for normalisation.
+              type: string
+          type: object
+        last_analysis_stats:
+          description: number of different results from this scans.
+          properties:
+            harmless:
+              description: number of reports saying that is harmless.
+              type: integer
+            malicious:
+              description: number of reports saying that is malicious.
+              type: integer
+            suspicious:
+              description: number of reports saying that is suspicious.
+              type: integer
+            timeout:
+              description: number of timeouts when checking this URL.
+              type: integer
+            undetected:
+              description: number of reports saying that is undetected.
+              type: integer
+          type: object
+        last_final_url:
+          description: if the original URL redirects, where does it end.
+          type: string
+        last_http_response_code:
+          description: HTTP response code of the last response.
+          type: integer
+        last_http_response_content_length:
+          description: length in bytes of the content received.
+          type: integer
+        last_http_response_content_sha256:
+          description: URL response body's SHA256 hash.
+          type: string
+        last_http_response_cookies:
+          additionalProperties: true
+          description: containing the website's cookies.
+          type: object
+        last_http_response_headers:
+          additionalProperties: true
+          description: containing headers and values of last HTTP response.
+          type: object
+        last_modification_date:
+          description: UTC timestamp representing last modification date.
+          type: integer
+        last_submission_date:
+          description: UTC timestamp representing last time it was sent to be analysed.
+          type: integer
+        outgoing_links:
+          description: containing links to different domains.
+          items:
+            type: string
+          type: array
+        redirection_chain:
+          description: history of redirections followed when visiting a given URL.
+            The last URL of the chain is not included in the list since it is available
+            at the `last_final_url` attribute.
+          items:
+            type: string
+          type: array
+        reputation:
+          description: value of votes from VT community.
+          type: integer
+        tags:
+          description: tags.
+          items:
+            type: string
+          type: array
+        targeted_brand:
+          additionalProperties: true
+          description: targeted brand info extracted from phishing engines.
+          type: object
+        times_submitted:
+          description: number of times that URL has been checked.
+          type: integer
+        title:
+          description: webpage title.
+          type: string
+        total_votes:
+          description: containing the number of positive ("harmless") and negative
+            ("malicious") votes received from VT community.
+          properties:
+            harmless:
+              description: number of positive votes.
+              type: integer
+            malicious:
+              description: number of negative votes.
+              type: integer
+          type: object
+        trackers:
+          description: 'contains all found trackers in that URL in a historical manner.
+            Every key is a tracker name, which is a dictionary containing:'
+          properties:
+            id:
+              description: tracker ID, if available.
+              type: string
+            timestamp:
+              description: tracker ingestion date as UNIX timestamp.
+              type: integer
+            url:
+              description: tracker script URL.
+              type: string
+          type: object
+        url:
+          description: original URL to be scanned.
+          type: string
+      required:
+      - categories
+      - favicon
+      - first_submission_date
+      - html_meta
+      - last_analysis_date
+      - last_analysis_results
+      - last_analysis_stats
+      - last_final_url
+      - last_http_response_code
+      - last_http_response_content_length
+      - last_http_response_content_sha256
+      - last_http_response_cookies
+      - last_http_response_headers
+      - last_modification_date
+      - last_submission_date
+      - outgoing_links
+      - redirection_chain
+      - reputation
+      - tags
+      - targeted_brand
+      - times_submitted
+      - title
+      - total_votes
+      - trackers
+      - url
+      type: object
+  securitySchemes:
+    sec0:
+      in: header
+      name: X-Apikey
+      type: apiKey
+info:
+  title: VirusTotal API v3
+  version: '3.0'
+openapi: 3.1.0
+paths:
+  /urls:
+    post:
+      deprecated: false
+      description: ''
+      operationId: scan-url
+      parameters:
+      - description: Your API key
+        in: header
+        name: x-apikey
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                url:
+                  description: URL to scan
+                  type: string
+              required:
+              - url
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/URLObject'
+                required:
+                - data
+                type: object
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                - error
+                type: object
+          description: '400'
+      summary: Scan URL
+  /urls/{id}:
+    get:
+      deprecated: false
+      description: Returns a URL object.
+      operationId: url-info
+      parameters:
+      - description: Your API key
+        in: header
+        name: x-apikey
+        required: true
+        schema:
+          type: string
+      - description: URL identifier or base64 representation of URL to scan (w/o padding)
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/URLObject'
+                required:
+                - data
+                type: object
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                - error
+                type: object
+          description: '400'
+      security: []
+      summary: Get a URL analysis report
+  /urls/{id}/analyse:
+    post:
+      deprecated: false
+      description: Returns a Analysis object descriptor which can be used in the GET/analyses/{id}
+        API endpoint to get further information about the analysis status.
+      operationId: urls-analyse
+      parameters:
+      - description: URL identifier
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Your API key
+        in: header
+        name: x-apikey
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/URLObject'
+                required:
+                - data
+                type: object
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    $ref: '#/components/schemas/Error'
+                required:
+                - error
+                type: object
+          description: '400'
+      security: []
+      summary: Request a URL rescan (re-analyze)
+security:
+- sec0: []
+servers:
+- url: https://www.virustotal.com/api/v3
