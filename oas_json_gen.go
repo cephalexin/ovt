@@ -193,109 +193,6 @@ func (s *ErrorCode) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes int as json.
-func (o OptInt) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Int(int(o.Value))
-}
-
-// Decode decodes int from json.
-func (o *OptInt) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptInt to nil")
-	}
-	o.Set = true
-	v, err := d.Int()
-	if err != nil {
-		return err
-	}
-	o.Value = int(v)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptInt) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptInt) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes string as json.
-func (o OptString) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Str(string(o.Value))
-}
-
-// Decode decodes string from json.
-func (o *OptString) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptString to nil")
-	}
-	o.Set = true
-	v, err := d.Str()
-	if err != nil {
-		return err
-	}
-	o.Value = string(v)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptString) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptString) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes URLObjectLastAnalysisResultsCategory as json.
-func (o OptURLObjectLastAnalysisResultsCategory) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	e.Str(string(o.Value))
-}
-
-// Decode decodes URLObjectLastAnalysisResultsCategory from json.
-func (o *OptURLObjectLastAnalysisResultsCategory) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptURLObjectLastAnalysisResultsCategory to nil")
-	}
-	o.Set = true
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptURLObjectLastAnalysisResultsCategory) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptURLObjectLastAnalysisResultsCategory) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s ScanURLBadRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -1292,16 +1189,14 @@ func (s URLObjectFavicon) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s URLObjectFavicon) encodeFields(e *jx.Encoder) {
 	{
-		if s.Dhash.Set {
-			e.FieldStart("dhash")
-			s.Dhash.Encode(e)
-		}
+
+		e.FieldStart("dhash")
+		e.Str(s.Dhash)
 	}
 	{
-		if s.RawMD5.Set {
-			e.FieldStart("raw_md5")
-			s.RawMD5.Encode(e)
-		}
+
+		e.FieldStart("raw_md5")
+		e.Str(s.RawMD5)
 	}
 }
 
@@ -1315,13 +1210,16 @@ func (s *URLObjectFavicon) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode URLObjectFavicon to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "dhash":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Dhash.Reset()
-				if err := s.Dhash.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Dhash = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1329,9 +1227,11 @@ func (s *URLObjectFavicon) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"dhash\"")
 			}
 		case "raw_md5":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.RawMD5.Reset()
-				if err := s.RawMD5.Decode(d); err != nil {
+				v, err := d.Str()
+				s.RawMD5 = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1344,6 +1244,38 @@ func (s *URLObjectFavicon) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode URLObjectFavicon")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfURLObjectFavicon) {
+					name = jsonFieldsNameOfURLObjectFavicon[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1430,28 +1362,24 @@ func (s URLObjectLastAnalysisResults) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s URLObjectLastAnalysisResults) encodeFields(e *jx.Encoder) {
 	{
-		if s.Category.Set {
-			e.FieldStart("category")
-			s.Category.Encode(e)
-		}
+
+		e.FieldStart("category")
+		s.Category.Encode(e)
 	}
 	{
-		if s.EngineName.Set {
-			e.FieldStart("engine_name")
-			s.EngineName.Encode(e)
-		}
+
+		e.FieldStart("engine_name")
+		e.Str(s.EngineName)
 	}
 	{
-		if s.Method.Set {
-			e.FieldStart("method")
-			s.Method.Encode(e)
-		}
+
+		e.FieldStart("method")
+		e.Str(s.Method)
 	}
 	{
-		if s.Result.Set {
-			e.FieldStart("result")
-			s.Result.Encode(e)
-		}
+
+		e.FieldStart("result")
+		e.Str(s.Result)
 	}
 }
 
@@ -1467,12 +1395,13 @@ func (s *URLObjectLastAnalysisResults) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode URLObjectLastAnalysisResults to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "category":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Category.Reset()
 				if err := s.Category.Decode(d); err != nil {
 					return err
 				}
@@ -1481,9 +1410,11 @@ func (s *URLObjectLastAnalysisResults) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"category\"")
 			}
 		case "engine_name":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.EngineName.Reset()
-				if err := s.EngineName.Decode(d); err != nil {
+				v, err := d.Str()
+				s.EngineName = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1491,9 +1422,11 @@ func (s *URLObjectLastAnalysisResults) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"engine_name\"")
 			}
 		case "method":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Method.Reset()
-				if err := s.Method.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Method = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1501,9 +1434,11 @@ func (s *URLObjectLastAnalysisResults) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"method\"")
 			}
 		case "result":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				s.Result.Reset()
-				if err := s.Result.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Result = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1516,6 +1451,38 @@ func (s *URLObjectLastAnalysisResults) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode URLObjectLastAnalysisResults")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfURLObjectLastAnalysisResults) {
+					name = jsonFieldsNameOfURLObjectLastAnalysisResults[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1588,34 +1555,29 @@ func (s URLObjectLastAnalysisStats) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s URLObjectLastAnalysisStats) encodeFields(e *jx.Encoder) {
 	{
-		if s.Harmless.Set {
-			e.FieldStart("harmless")
-			s.Harmless.Encode(e)
-		}
+
+		e.FieldStart("harmless")
+		e.Int(s.Harmless)
 	}
 	{
-		if s.Malicious.Set {
-			e.FieldStart("malicious")
-			s.Malicious.Encode(e)
-		}
+
+		e.FieldStart("malicious")
+		e.Int(s.Malicious)
 	}
 	{
-		if s.Suspicious.Set {
-			e.FieldStart("suspicious")
-			s.Suspicious.Encode(e)
-		}
+
+		e.FieldStart("suspicious")
+		e.Int(s.Suspicious)
 	}
 	{
-		if s.Timeout.Set {
-			e.FieldStart("timeout")
-			s.Timeout.Encode(e)
-		}
+
+		e.FieldStart("timeout")
+		e.Int(s.Timeout)
 	}
 	{
-		if s.Undetected.Set {
-			e.FieldStart("undetected")
-			s.Undetected.Encode(e)
-		}
+
+		e.FieldStart("undetected")
+		e.Int(s.Undetected)
 	}
 }
 
@@ -1632,13 +1594,16 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode URLObjectLastAnalysisStats to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "harmless":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Harmless.Reset()
-				if err := s.Harmless.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Harmless = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1646,9 +1611,11 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"harmless\"")
 			}
 		case "malicious":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Malicious.Reset()
-				if err := s.Malicious.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Malicious = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1656,9 +1623,11 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"malicious\"")
 			}
 		case "suspicious":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Suspicious.Reset()
-				if err := s.Suspicious.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Suspicious = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1666,9 +1635,11 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"suspicious\"")
 			}
 		case "timeout":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				s.Timeout.Reset()
-				if err := s.Timeout.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Timeout = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1676,9 +1647,11 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"timeout\"")
 			}
 		case "undetected":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				s.Undetected.Reset()
-				if err := s.Undetected.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Undetected = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1691,6 +1664,38 @@ func (s *URLObjectLastAnalysisStats) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode URLObjectLastAnalysisStats")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00011111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfURLObjectLastAnalysisStats) {
+					name = jsonFieldsNameOfURLObjectLastAnalysisStats[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1893,16 +1898,14 @@ func (s URLObjectTotalVotes) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s URLObjectTotalVotes) encodeFields(e *jx.Encoder) {
 	{
-		if s.Harmless.Set {
-			e.FieldStart("harmless")
-			s.Harmless.Encode(e)
-		}
+
+		e.FieldStart("harmless")
+		e.Int(s.Harmless)
 	}
 	{
-		if s.Malicious.Set {
-			e.FieldStart("malicious")
-			s.Malicious.Encode(e)
-		}
+
+		e.FieldStart("malicious")
+		e.Int(s.Malicious)
 	}
 }
 
@@ -1916,13 +1919,16 @@ func (s *URLObjectTotalVotes) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode URLObjectTotalVotes to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "harmless":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Harmless.Reset()
-				if err := s.Harmless.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Harmless = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1930,9 +1936,11 @@ func (s *URLObjectTotalVotes) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"harmless\"")
 			}
 		case "malicious":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Malicious.Reset()
-				if err := s.Malicious.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Malicious = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1945,6 +1953,38 @@ func (s *URLObjectTotalVotes) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode URLObjectTotalVotes")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfURLObjectTotalVotes) {
+					name = jsonFieldsNameOfURLObjectTotalVotes[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1973,22 +2013,19 @@ func (s URLObjectTrackers) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s URLObjectTrackers) encodeFields(e *jx.Encoder) {
 	{
-		if s.ID.Set {
-			e.FieldStart("id")
-			s.ID.Encode(e)
-		}
+
+		e.FieldStart("id")
+		e.Str(s.ID)
 	}
 	{
-		if s.Timestamp.Set {
-			e.FieldStart("timestamp")
-			s.Timestamp.Encode(e)
-		}
+
+		e.FieldStart("timestamp")
+		e.Int(s.Timestamp)
 	}
 	{
-		if s.URL.Set {
-			e.FieldStart("url")
-			s.URL.Encode(e)
-		}
+
+		e.FieldStart("url")
+		e.Str(s.URL)
 	}
 }
 
@@ -2003,13 +2040,16 @@ func (s *URLObjectTrackers) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode URLObjectTrackers to nil")
 	}
+	var requiredBitSet [1]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "id":
+			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.ID.Reset()
-				if err := s.ID.Decode(d); err != nil {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -2017,9 +2057,11 @@ func (s *URLObjectTrackers) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "timestamp":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Timestamp.Reset()
-				if err := s.Timestamp.Decode(d); err != nil {
+				v, err := d.Int()
+				s.Timestamp = int(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -2027,9 +2069,11 @@ func (s *URLObjectTrackers) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"timestamp\"")
 			}
 		case "url":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.URL.Reset()
-				if err := s.URL.Decode(d); err != nil {
+				v, err := d.Str()
+				s.URL = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -2042,6 +2086,38 @@ func (s *URLObjectTrackers) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode URLObjectTrackers")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfURLObjectTrackers) {
+					name = jsonFieldsNameOfURLObjectTrackers[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil

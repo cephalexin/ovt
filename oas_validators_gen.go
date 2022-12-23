@@ -64,7 +64,6 @@ func (s ErrorCode) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
-
 func (s ScanURLBadRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -191,15 +190,8 @@ func (s URLObject) Validate() error {
 func (s URLObjectLastAnalysisResults) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Category.Set {
-			if err := func() error {
-				if err := s.Category.Value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Category.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {

@@ -105,6 +105,9 @@ components:
             raw_md5:
               description: favicon's MD5 hash.
               type: string
+          required:
+          - dhash
+          - raw_md5
           type: object
         first_submission_date:
           description: UTC timestamp of the date where the URL was first submitted
@@ -151,6 +154,11 @@ components:
                 "suspicious", "phishing"). It may vary from scanner to scanner, hence
                 the need for the "category" field for normalisation.
               type: string
+          required:
+          - category
+          - engine_name
+          - method
+          - result
           type: object
         last_analysis_stats:
           description: number of different results from this scans.
@@ -170,6 +178,12 @@ components:
             undetected:
               description: number of reports saying that is undetected.
               type: integer
+          required:
+          - harmless
+          - malicious
+          - suspicious
+          - timeout
+          - undetected
           type: object
         last_final_url:
           description: if the original URL redirects, where does it end.
@@ -237,6 +251,9 @@ components:
             malicious:
               description: number of negative votes.
               type: integer
+          required:
+          - harmless
+          - malicious
           type: object
         trackers:
           description: 'contains all found trackers in that URL in a historical manner.
@@ -251,6 +268,10 @@ components:
             url:
               description: tracker script URL.
               type: string
+          required:
+          - id
+          - timestamp
+          - url
           type: object
         url:
           description: original URL to be scanned.

@@ -303,6 +303,10 @@
           "favicon": {
             "type": "object",
             "description": "dictionary including difference hash and md5 hash of the URL's favicon. Only returned in premium API.",
+            "required": [
+              "dhash",
+              "raw_md5"
+            ],
             "properties": {
               "dhash": {
                 "type": "string",
@@ -330,6 +334,12 @@
           "last_analysis_results": {
             "type": "object",
             "description": "result from URL scanners. dict with scanner name as key and a dict with notes/result from that scanner as value.",
+            "required": [
+              "category",
+              "engine_name",
+              "method",
+              "result"
+            ],
             "properties": {
               "category": {
                 "type": "string",
@@ -358,6 +368,13 @@
           "last_analysis_stats": {
             "type": "object",
             "description": "number of different results from this scans.",
+            "required": [
+              "harmless",
+              "malicious",
+              "suspicious",
+              "timeout",
+              "undetected"
+            ],
             "properties": {
               "harmless": {
                 "type": "integer",
@@ -456,6 +473,10 @@
           "total_votes": {
             "type": "object",
             "description": "containing the number of positive (\"harmless\") and negative (\"malicious\") votes received from VT community.",
+            "required": [
+              "harmless",
+              "malicious"
+            ],
             "properties": {
               "harmless": {
                 "type": "integer",
@@ -470,6 +491,11 @@
           "trackers": {
             "type": "object",
             "description": "contains all found trackers in that URL in a historical manner. Every key is a tracker name, which is a dictionary containing:",
+            "required": [
+              "id",
+              "timestamp",
+              "url"
+            ],
             "properties": {
               "id": {
                 "type": "string",

@@ -100,52 +100,6 @@ const (
 	ErrorCodeDeadlineExceededError        ErrorCode = "DeadlineExceededError"
 )
 
-// NewOptInt returns new OptInt with value set to v.
-func NewOptInt(v int) OptInt {
-	return OptInt{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptInt is optional int.
-type OptInt struct {
-	Value int
-	Set   bool
-}
-
-// IsSet returns true if OptInt was set.
-func (o OptInt) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptInt) Reset() {
-	var v int
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptInt) SetTo(v int) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptInt) Get() (v int, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptInt) Or(d int) int {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptScanURLReq returns new OptScanURLReq with value set to v.
 func NewOptScanURLReq(v ScanURLReq) OptScanURLReq {
 	return OptScanURLReq{
@@ -186,98 +140,6 @@ func (o OptScanURLReq) Get() (v ScanURLReq, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptScanURLReq) Or(d ScanURLReq) ScanURLReq {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptString returns new OptString with value set to v.
-func NewOptString(v string) OptString {
-	return OptString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptString is optional string.
-type OptString struct {
-	Value string
-	Set   bool
-}
-
-// IsSet returns true if OptString was set.
-func (o OptString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptString) SetTo(v string) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptString) Get() (v string, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptURLObjectLastAnalysisResultsCategory returns new OptURLObjectLastAnalysisResultsCategory with value set to v.
-func NewOptURLObjectLastAnalysisResultsCategory(v URLObjectLastAnalysisResultsCategory) OptURLObjectLastAnalysisResultsCategory {
-	return OptURLObjectLastAnalysisResultsCategory{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptURLObjectLastAnalysisResultsCategory is optional URLObjectLastAnalysisResultsCategory.
-type OptURLObjectLastAnalysisResultsCategory struct {
-	Value URLObjectLastAnalysisResultsCategory
-	Set   bool
-}
-
-// IsSet returns true if OptURLObjectLastAnalysisResultsCategory was set.
-func (o OptURLObjectLastAnalysisResultsCategory) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptURLObjectLastAnalysisResultsCategory) Reset() {
-	var v URLObjectLastAnalysisResultsCategory
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptURLObjectLastAnalysisResultsCategory) SetTo(v URLObjectLastAnalysisResultsCategory) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptURLObjectLastAnalysisResultsCategory) Get() (v URLObjectLastAnalysisResultsCategory, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptURLObjectLastAnalysisResultsCategory) Or(d URLObjectLastAnalysisResultsCategory) URLObjectLastAnalysisResultsCategory {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -708,28 +570,28 @@ func (s *URLObjectCategories) init() URLObjectCategories {
 // API.
 type URLObjectFavicon struct {
 	// Difference hash.
-	Dhash OptString `json:"dhash"`
+	Dhash string `json:"dhash"`
 	// Favicon's MD5 hash.
-	RawMD5 OptString `json:"raw_md5"`
+	RawMD5 string `json:"raw_md5"`
 }
 
 // GetDhash returns the value of Dhash.
-func (s URLObjectFavicon) GetDhash() OptString {
+func (s URLObjectFavicon) GetDhash() string {
 	return s.Dhash
 }
 
 // GetRawMD5 returns the value of RawMD5.
-func (s URLObjectFavicon) GetRawMD5() OptString {
+func (s URLObjectFavicon) GetRawMD5() string {
 	return s.RawMD5
 }
 
 // SetDhash sets the value of Dhash.
-func (s *URLObjectFavicon) SetDhash(val OptString) {
+func (s *URLObjectFavicon) SetDhash(val string) {
 	s.Dhash = val
 }
 
 // SetRawMD5 sets the value of RawMD5.
-func (s *URLObjectFavicon) SetRawMD5(val OptString) {
+func (s *URLObjectFavicon) SetRawMD5(val string) {
 	s.RawMD5 = val
 }
 
@@ -754,53 +616,53 @@ type URLObjectLastAnalysisResults struct {
 	// * `undetected` - (scanner has no opinion about this site),
 	// * `suspicious` - (scanner thinks the site is suspicious),
 	// * `malicious` - (scanner thinks the site is malicious).
-	Category OptURLObjectLastAnalysisResultsCategory `json:"category"`
+	Category URLObjectLastAnalysisResultsCategory `json:"category"`
 	// Complete name of the URL scanning service.
-	EngineName OptString `json:"engine_name"`
+	EngineName string `json:"engine_name"`
 	// Type of service given by that URL scanning service (i.e. "blacklist").
-	Method OptString `json:"method"`
+	Method string `json:"method"`
 	// Raw value returned by the URL scanner ("clean", "malicious", "suspicious", "phishing"). It may
 	// vary from scanner to scanner, hence the need for the "category" field for normalisation.
-	Result OptString `json:"result"`
+	Result string `json:"result"`
 }
 
 // GetCategory returns the value of Category.
-func (s URLObjectLastAnalysisResults) GetCategory() OptURLObjectLastAnalysisResultsCategory {
+func (s URLObjectLastAnalysisResults) GetCategory() URLObjectLastAnalysisResultsCategory {
 	return s.Category
 }
 
 // GetEngineName returns the value of EngineName.
-func (s URLObjectLastAnalysisResults) GetEngineName() OptString {
+func (s URLObjectLastAnalysisResults) GetEngineName() string {
 	return s.EngineName
 }
 
 // GetMethod returns the value of Method.
-func (s URLObjectLastAnalysisResults) GetMethod() OptString {
+func (s URLObjectLastAnalysisResults) GetMethod() string {
 	return s.Method
 }
 
 // GetResult returns the value of Result.
-func (s URLObjectLastAnalysisResults) GetResult() OptString {
+func (s URLObjectLastAnalysisResults) GetResult() string {
 	return s.Result
 }
 
 // SetCategory sets the value of Category.
-func (s *URLObjectLastAnalysisResults) SetCategory(val OptURLObjectLastAnalysisResultsCategory) {
+func (s *URLObjectLastAnalysisResults) SetCategory(val URLObjectLastAnalysisResultsCategory) {
 	s.Category = val
 }
 
 // SetEngineName sets the value of EngineName.
-func (s *URLObjectLastAnalysisResults) SetEngineName(val OptString) {
+func (s *URLObjectLastAnalysisResults) SetEngineName(val string) {
 	s.EngineName = val
 }
 
 // SetMethod sets the value of Method.
-func (s *URLObjectLastAnalysisResults) SetMethod(val OptString) {
+func (s *URLObjectLastAnalysisResults) SetMethod(val string) {
 	s.Method = val
 }
 
 // SetResult sets the value of Result.
-func (s *URLObjectLastAnalysisResults) SetResult(val OptString) {
+func (s *URLObjectLastAnalysisResults) SetResult(val string) {
 	s.Result = val
 }
 
@@ -821,64 +683,64 @@ const (
 // Number of different results from this scans.
 type URLObjectLastAnalysisStats struct {
 	// Number of reports saying that is harmless.
-	Harmless OptInt `json:"harmless"`
+	Harmless int `json:"harmless"`
 	// Number of reports saying that is malicious.
-	Malicious OptInt `json:"malicious"`
+	Malicious int `json:"malicious"`
 	// Number of reports saying that is suspicious.
-	Suspicious OptInt `json:"suspicious"`
+	Suspicious int `json:"suspicious"`
 	// Number of timeouts when checking this URL.
-	Timeout OptInt `json:"timeout"`
+	Timeout int `json:"timeout"`
 	// Number of reports saying that is undetected.
-	Undetected OptInt `json:"undetected"`
+	Undetected int `json:"undetected"`
 }
 
 // GetHarmless returns the value of Harmless.
-func (s URLObjectLastAnalysisStats) GetHarmless() OptInt {
+func (s URLObjectLastAnalysisStats) GetHarmless() int {
 	return s.Harmless
 }
 
 // GetMalicious returns the value of Malicious.
-func (s URLObjectLastAnalysisStats) GetMalicious() OptInt {
+func (s URLObjectLastAnalysisStats) GetMalicious() int {
 	return s.Malicious
 }
 
 // GetSuspicious returns the value of Suspicious.
-func (s URLObjectLastAnalysisStats) GetSuspicious() OptInt {
+func (s URLObjectLastAnalysisStats) GetSuspicious() int {
 	return s.Suspicious
 }
 
 // GetTimeout returns the value of Timeout.
-func (s URLObjectLastAnalysisStats) GetTimeout() OptInt {
+func (s URLObjectLastAnalysisStats) GetTimeout() int {
 	return s.Timeout
 }
 
 // GetUndetected returns the value of Undetected.
-func (s URLObjectLastAnalysisStats) GetUndetected() OptInt {
+func (s URLObjectLastAnalysisStats) GetUndetected() int {
 	return s.Undetected
 }
 
 // SetHarmless sets the value of Harmless.
-func (s *URLObjectLastAnalysisStats) SetHarmless(val OptInt) {
+func (s *URLObjectLastAnalysisStats) SetHarmless(val int) {
 	s.Harmless = val
 }
 
 // SetMalicious sets the value of Malicious.
-func (s *URLObjectLastAnalysisStats) SetMalicious(val OptInt) {
+func (s *URLObjectLastAnalysisStats) SetMalicious(val int) {
 	s.Malicious = val
 }
 
 // SetSuspicious sets the value of Suspicious.
-func (s *URLObjectLastAnalysisStats) SetSuspicious(val OptInt) {
+func (s *URLObjectLastAnalysisStats) SetSuspicious(val int) {
 	s.Suspicious = val
 }
 
 // SetTimeout sets the value of Timeout.
-func (s *URLObjectLastAnalysisStats) SetTimeout(val OptInt) {
+func (s *URLObjectLastAnalysisStats) SetTimeout(val int) {
 	s.Timeout = val
 }
 
 // SetUndetected sets the value of Undetected.
-func (s *URLObjectLastAnalysisStats) SetUndetected(val OptInt) {
+func (s *URLObjectLastAnalysisStats) SetUndetected(val int) {
 	s.Undetected = val
 }
 
@@ -922,28 +784,28 @@ func (s *URLObjectTargetedBrand) init() URLObjectTargetedBrand {
 // community.
 type URLObjectTotalVotes struct {
 	// Number of positive votes.
-	Harmless OptInt `json:"harmless"`
+	Harmless int `json:"harmless"`
 	// Number of negative votes.
-	Malicious OptInt `json:"malicious"`
+	Malicious int `json:"malicious"`
 }
 
 // GetHarmless returns the value of Harmless.
-func (s URLObjectTotalVotes) GetHarmless() OptInt {
+func (s URLObjectTotalVotes) GetHarmless() int {
 	return s.Harmless
 }
 
 // GetMalicious returns the value of Malicious.
-func (s URLObjectTotalVotes) GetMalicious() OptInt {
+func (s URLObjectTotalVotes) GetMalicious() int {
 	return s.Malicious
 }
 
 // SetHarmless sets the value of Harmless.
-func (s *URLObjectTotalVotes) SetHarmless(val OptInt) {
+func (s *URLObjectTotalVotes) SetHarmless(val int) {
 	s.Harmless = val
 }
 
 // SetMalicious sets the value of Malicious.
-func (s *URLObjectTotalVotes) SetMalicious(val OptInt) {
+func (s *URLObjectTotalVotes) SetMalicious(val int) {
 	s.Malicious = val
 }
 
@@ -951,40 +813,40 @@ func (s *URLObjectTotalVotes) SetMalicious(val OptInt) {
 // is a dictionary containing:.
 type URLObjectTrackers struct {
 	// Tracker ID, if available.
-	ID OptString `json:"id"`
+	ID string `json:"id"`
 	// Tracker ingestion date as UNIX timestamp.
-	Timestamp OptInt `json:"timestamp"`
+	Timestamp int `json:"timestamp"`
 	// Tracker script URL.
-	URL OptString `json:"url"`
+	URL string `json:"url"`
 }
 
 // GetID returns the value of ID.
-func (s URLObjectTrackers) GetID() OptString {
+func (s URLObjectTrackers) GetID() string {
 	return s.ID
 }
 
 // GetTimestamp returns the value of Timestamp.
-func (s URLObjectTrackers) GetTimestamp() OptInt {
+func (s URLObjectTrackers) GetTimestamp() int {
 	return s.Timestamp
 }
 
 // GetURL returns the value of URL.
-func (s URLObjectTrackers) GetURL() OptString {
+func (s URLObjectTrackers) GetURL() string {
 	return s.URL
 }
 
 // SetID sets the value of ID.
-func (s *URLObjectTrackers) SetID(val OptString) {
+func (s *URLObjectTrackers) SetID(val string) {
 	s.ID = val
 }
 
 // SetTimestamp sets the value of Timestamp.
-func (s *URLObjectTrackers) SetTimestamp(val OptInt) {
+func (s *URLObjectTrackers) SetTimestamp(val int) {
 	s.Timestamp = val
 }
 
 // SetURL sets the value of URL.
-func (s *URLObjectTrackers) SetURL(val OptString) {
+func (s *URLObjectTrackers) SetURL(val string) {
 	s.URL = val
 }
 

@@ -9,8 +9,8 @@ from sys import stderr
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from requests.sessions import session
-
 from yaml import dump as yaml_dump
+
 try:
     from yaml import CDumper as Dumper
 except ImportError:
@@ -139,12 +139,14 @@ class Parser:
                 props0 = {
                     "type": "object",
                     "description": m.group(3).strip(),
+                    "required": [],
                     "properties": {}
                 }
 
                 for item0 in v:
                     n, p = parse_item(item0)
                     if n and p:
+                        props0["required"].append(n)
                         props0["properties"][n] = p
 
                 return m.group(1), props0

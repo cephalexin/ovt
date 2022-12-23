@@ -13,11 +13,13 @@ A Go library for interfacing with the VirusTotal v3 API.
 
 The [_tools/generate.py](./_tools/generate.py) script scrapes and parses the [developers.virustotal.com](https://developers.virustotal.com/reference) reference documentation and creates an OpenAPI specification from it.
 
-### Supported objects
+The specification and library can be regenerated from scratch with `go generate` (you will need Python 3.5+ with dependencies installed from requirements.txt and the [ogen](https://ogen.dev/docs/intro/#installation) OpenAPI generator).
+
+#### Supported objects
 
 * URL
 
-### Supported routes
+#### Supported routes
 
 * POST `/urls`
 * GET `/urls/{id}`
